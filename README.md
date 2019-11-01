@@ -1,2 +1,2 @@
-# ftpclient
-A simple CLI ftpclient for a school project.
+# ftp
+A simple CLI ftp client/server for a school project.
