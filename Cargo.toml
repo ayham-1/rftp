@@ -1,5 +1,7 @@
 [package]
-
-name = "ftpclient"
-version = "0.0.1"
+name = "rftp"
+version = "0.0.2"
 authors = [ "realatffour <ayhamaboualfadl@gmail.com>" ]
+
+[dependencies]
+clap = "2.33.0"
