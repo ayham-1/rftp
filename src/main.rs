@@ -6,12 +6,13 @@ use parser::{parse_server_info, parse_client_info};
 
 fn run(_args: clap::ArgMatches) {
     match _args.subcommand() {
-        ("client", Some(m)) => {
-            let info: defines::ServerInfo = parse_server_info(m); 
+        ("server", Some(m)) => {
+            let _info: defines::ServerInfo = parse_server_info(m); 
+            println!("{:?}", _info);
             println!("I am in server mode.")
         },
-        ("server", Some(m)) => {
-            let info: defines::ClientInfo = parse_client_info(m); 
+        ("client", Some(m)) => {
+            let _info: defines::ClientInfo = parse_client_info(m); 
             println!("I am in client mode.")
         },
         _ => println!("Specify running mode."),
