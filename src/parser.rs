@@ -59,12 +59,29 @@ mod parser {
     }
 
     pub fn parse_client_info(_args: &clap::ArgMatches) -> ClientInfo {
-        let result = ClientInfo {
+        let mut result = ClientInfo {
             server_name: "localhost".to_string(),
-            connect_mode: FTPModes::Active,
+            connect_mode: FTPModes::Passive,
             username: "root".to_string(),
             password: "toor".to_string()
         };
+
+        let _in_mode = _args.value_of("connect-mode").unwrap_or("both");
+
+        if _in_mode == "active" || _in_mode == "1" {
+            result.connect_mode = FTPModes::Active;
+        } else if _in_mode == "passive" || _in_mode == "2" {
+            result.connect_mode = FTPModes::Passive;
+        } else if _in_mode == "both" || _in_mode == "3" {
+            result.connect_mode = FTPModes::Both;
+        } else {
+            panic!("Unrecognized argument given to --mode");
+        }
+
+        result.server_name = _args.value_of("server-name").unwrap_or("localhost").to_string();
+        result.username = _args.value_of("username").unwrap_or("root").to_string();
+        result.password = _args.value_of("password").unwrap_or("toor").to_string();
+
         result
     }
 }

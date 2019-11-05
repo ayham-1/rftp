@@ -8,11 +8,11 @@ fn run(_args: clap::ArgMatches) {
     match _args.subcommand() {
         ("server", Some(m)) => {
             let _info: defines::ServerInfo = parse_server_info(m); 
-            println!("{:?}", _info);
             println!("I am in server mode.")
         },
         ("client", Some(m)) => {
             let _info: defines::ClientInfo = parse_client_info(m); 
+            println!("{:?}", _info);
             println!("I am in client mode.")
         },
         _ => println!("Specify running mode."),
@@ -81,14 +81,14 @@ fn main() {
             .default_value("passive")
             .help("Connection mode, default tries both.")
             .required(true))
-        .arg(Arg::with_name("Username")
+        .arg(Arg::with_name("username")
             .short("u")
             .long("user")
             .takes_value(true)
             .value_name("userstr")
             .help("User to login with.")
             .required(false))
-        .arg(Arg::with_name("Password")
+        .arg(Arg::with_name("password")
             .short("w")
             .long("pass")
             .takes_value(true)
