@@ -1,19 +1,22 @@
-include! { "parser.rs" }
-
 extern crate clap;
+
+pub mod defines;
+pub mod parser;
+pub mod ftp_server;
+
+use defines::defines::{FTPModes, ServerInfo, ClientInfo};
 use clap::{Arg, App, SubCommand};
-use parser::{parse_server_info, parse_client_info};
+use parser::parser::{parse_server_info, parse_client_info};
+use ftp_server::ftp_server::{start_server};
 
 fn run(_args: clap::ArgMatches) {
     match _args.subcommand() {
         ("server", Some(m)) => {
-            let _info: defines::ServerInfo = parse_server_info(m); 
-            println!("I am in server mode.")
+            let _info: ServerInfo = parse_server_info(m); 
+            start_server(_info);
         },
         ("client", Some(m)) => {
-            let _info: defines::ClientInfo = parse_client_info(m); 
-            println!("{:?}", _info);
-            println!("I am in client mode.")
+            let _info: ClientInfo = parse_client_info(m); 
         },
         _ => println!("Specify running mode."),
     }

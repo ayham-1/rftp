@@ -1,4 +1,4 @@
-mod defines {
+pub mod defines {
     #[derive(Debug)]
     pub enum FTPModes { Active, Passive, Both }
     #[derive(Debug)]
@@ -10,7 +10,8 @@ mod defines {
         pub max_connections: i32,
         pub port_range: PortRange,
         pub allow_anonymous: bool,
-        pub log_file: String
+        pub log_file: String,
+        pub pwd: String
     }
 
     #[derive(Debug)]

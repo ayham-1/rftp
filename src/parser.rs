@@ -1,8 +1,6 @@
-include! { "defines.rs" }
-
-mod parser {
+pub mod parser {
     extern crate clap;
-    use defines::{ServerInfo, ClientInfo, FTPModes, PortRange};
+    use defines::defines::{ServerInfo, ClientInfo, FTPModes, PortRange};
 
     pub fn parse_server_info(_args: &clap::ArgMatches) -> ServerInfo {
         let mut result = ServerInfo {
@@ -10,8 +8,11 @@ mod parser {
             max_connections: 10,
             port_range: PortRange {x:2048,y:10240},
             allow_anonymous: false,
-            log_file: "stdout".to_string()
+            log_file: "stdout".to_string(),
+            pwd: "".to_string()
         };
+        let _pwd = std::env::current_dir().unwrap();
+        result.pwd = _pwd.into_os_string().into_string().unwrap();
 
         let _in_mode = _args.value_of("mode").unwrap_or("both");
         let _in_max_connections = _args.value_of("max-connections").unwrap_or("10");
