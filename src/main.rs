@@ -1,4 +1,5 @@
 extern crate clap;
+extern crate regex;
 
 pub mod defines;
 pub mod parser;
@@ -8,11 +9,12 @@ use defines::defines::{FTPModes, ServerInfo, ClientInfo};
 use clap::{Arg, App, SubCommand};
 use parser::parser::{parse_server_info, parse_client_info};
 use ftp_server::ftp_server::{start_server};
+use std::sync::Arc;
 
 fn run(_args: clap::ArgMatches) {
     match _args.subcommand() {
         ("server", Some(m)) => {
-            let _info: ServerInfo = parse_server_info(m); 
+            let _info = parse_server_info(m); 
             start_server(_info);
         },
         ("client", Some(m)) => {

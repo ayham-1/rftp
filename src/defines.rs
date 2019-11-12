@@ -1,10 +1,13 @@
 pub mod defines {
     #[derive(Debug)]
     pub enum FTPModes { Active, Passive, Both }
-    #[derive(Debug)]
+    impl Default for FTPModes {
+        fn default() -> Self { FTPModes::Both }
+    }
+    #[derive(Default, Debug)]
     pub struct PortRange { pub x: i32, pub y: i32 }
 
-    #[derive(Debug)]
+    #[derive(Default, Debug)]
     pub struct ServerInfo {
         pub mode: FTPModes,
         pub max_connections: i32,
@@ -14,7 +17,7 @@ pub mod defines {
         pub pwd: String
     }
 
-    #[derive(Debug)]
+    #[derive(Default, Debug)]
     pub struct ClientInfo {
         pub server_name: String,
         pub connect_mode: FTPModes,
