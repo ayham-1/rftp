@@ -29,6 +29,26 @@ pub mod auth {
         pub user: Vec<User>,
     }
 
+    pub fn addUser(_db: &mut DB, _username: String, _password: String, _rights: Rights) {
+        let mut user: User = User::default();
+        user.username = _username;
+        user.password = _password;
+        user.rights = _rights;
+
+        _db.user.push(user);
+    }
+
+    pub fn rmUser(_db: &mut DB, _username: String) {
+        _db.user.retain(|user| {
+            let delete = {
+                if user.username == _username {
+                    false
+                }
+                else { true }
+            };
+            !delete
+        });
+    }
 
     pub fn saveDB(_db: &DB) {
         println!("Saving DB...");

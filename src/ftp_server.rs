@@ -20,7 +20,7 @@ pub mod ftp_server {
 
     pub fn start_server(_info: ServerInfo) {
         let mut _state = ServerStatus::default();
-        println!("Starting Server with following settings:");
+        println!("Starting Server with the following settings:");
         println!("Allowed Modes: {:?}", _info.mode);
         println!("Max Connections allowed: {}", _info.max_connections);
         println!("Port Range: {:?}", _info.port_range);
