@@ -22,8 +22,6 @@ fn run(_args: clap::ArgMatches) {
     match _args.subcommand() {
         ("server", Some(m)) => {
             let _info = parse_server_info(m); 
-            let db: DB = DB::default();
-            saveDB(&db);
             start_server(_info);
         },
         ("client", Some(m)) => {
