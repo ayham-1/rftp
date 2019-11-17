@@ -11,3 +11,7 @@ Cargo.lock
 
 # Swap files made from vim.
 *.swp
+
+# Ignore accidental .db pushes.
+.db
+*db*

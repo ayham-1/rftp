@@ -1,20 +1,29 @@
 extern crate clap;
 extern crate regex;
+#[macro_use]
+extern crate lazy_static;
+extern crate serde_json;
+extern crate serde;
 
 pub mod defines;
 pub mod parser;
+pub mod auth;
+pub mod ftp;
 pub mod ftp_server;
 
 use defines::defines::{FTPModes, ServerInfo, ClientInfo};
 use clap::{Arg, App, SubCommand};
 use parser::parser::{parse_server_info, parse_client_info};
 use ftp_server::ftp_server::{start_server};
-use std::sync::Arc;
+use auth::auth::DB;
+use auth::auth::*;
 
 fn run(_args: clap::ArgMatches) {
     match _args.subcommand() {
         ("server", Some(m)) => {
             let _info = parse_server_info(m); 
+            let db: DB = DB::default();
+            saveDB(&db);
             start_server(_info);
         },
         ("client", Some(m)) => {
