@@ -33,7 +33,7 @@ fn run(_args: clap::ArgMatches) {
 
 fn main() {
     let _args = App::new("ftp")
-        .version("0.0.2")
+        .version("0.0.3")
         .author("realaltffour <ayhamaboualfadl@gmail.com>")
         .about("A ftp client/server that makes file transfers easy.")
         .subcommand(SubCommand::with_name("server")

@@ -19,6 +19,10 @@ pub mod ftp_server {
     }
 
     pub fn start_server(_info: ServerInfo) {
+        let mut db: auth::DB = auth::DB::default();
+        println!("Initializing Authorization Database...");
+        db = auth::loadDB();
+
         let mut _state = ServerStatus::default();
         println!("Starting Server with the following settings:");
         println!("Allowed Modes: {:?}", _info.mode);

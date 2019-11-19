@@ -63,10 +63,14 @@ pub mod auth {
     pub fn loadDB() -> DB {
         println!("Loading DB...");
 
-        let mut file = OpenOptions::new().read(true).open(".db").unwrap();
+        let mut file = OpenOptions::new().create(true).read(true).write(true).open(".db").unwrap();
 
         let mut contents: String = "".to_string();;
         file.read_to_string(&mut contents);
+
+        if contents == "".to_string() {
+            return DB::default();
+        }
 
         let mut db: DB = serde_json::from_str(&contents).unwrap();
         return db;
