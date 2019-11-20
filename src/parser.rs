@@ -1,6 +1,8 @@
 pub mod parser {
     extern crate clap;
     use defines::defines::{ServerInfo, ClientInfo, FTPModes, PortRange};
+    use db::*;
+    use auth::*;
 
     pub fn parse_server_info(_args: &clap::ArgMatches) -> ServerInfo {
         let mut result = ServerInfo {
@@ -56,7 +58,7 @@ pub mod parser {
         result.allow_anonymous = _in_anonymous_access_support;
         result.log_file = _in_log_file.to_string();
 
-        result
+        return result;
     }
 
     pub fn parse_client_info(_args: &clap::ArgMatches) -> ClientInfo {
@@ -83,6 +85,40 @@ pub mod parser {
         result.username = _args.value_of("username").unwrap_or("root").to_string();
         result.password = _args.value_of("password").unwrap_or("toor").to_string();
 
-        result
+        return result;
+    }
+
+    pub fn parse_dbcmd_info(_args: &clap::ArgMatches) -> db::DBCmd {
+        let mut result: db::DBCmd = db::DBCmd::default();
+        
+        if _args.is_present("add") {
+            result.job = db::CmdJob::Add;
+            result.user = _args.value_of("name").unwrap_or("").to_string();
+            result.pass = _args.value_of("pass").unwrap_or("").to_string();
+            let _in_rights = _args.value_of("access-rights").unwrap_or("").to_string();
+            if _in_rights == String::from("list") || _in_rights == String::from("0"){
+                result.rights = auth::Rights::List;
+            }
+            if _in_rights == String::from("read") || _in_rights == String::from("1"){
+                result.rights = auth::Rights::Read;
+            }
+            if _in_rights == String::from("all") || _in_rights == String::from("2"){
+                result.rights = auth::Rights::All;
+            }
+            if _in_rights == String::from("none") || _in_rights == String::from("3"){
+                result.rights = auth::Rights::Nothing;
+            }
+            return result;
+        }
+        if _args.is_present("rm") {
+            result.job = db::CmdJob::Remove;
+            result.user = _args.value_of("name").unwrap_or("").to_string();
+            return result;
+        }
+        if _args.is_present("list") {
+            result.job = db::CmdJob::List;
+            return result;
+        }
+        return result;
     }
 }
