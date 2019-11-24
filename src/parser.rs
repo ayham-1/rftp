@@ -93,9 +93,9 @@ pub mod parser {
         
         if _args.is_present("add") {
             result.job = db::CmdJob::Add;
-            result.user = _args.value_of("name").unwrap_or("").to_string();
-            result.pass = _args.value_of("pass").unwrap_or("").to_string();
-            let _in_rights = _args.value_of("access-rights").unwrap_or("").to_string();
+            result.user = _args.subcommand_matches("add").unwrap().value_of("name").unwrap().to_string();
+            result.pass = _args.subcommand_matches("add").unwrap().value_of("pass").unwrap().to_string();
+            let _in_rights = _args.subcommand_matches("add").unwrap().value_of("access-rights").unwrap().to_string();
             if _in_rights == String::from("list") || _in_rights == String::from("0"){
                 result.rights = auth::Rights::List;
             }

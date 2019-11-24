@@ -7,7 +7,7 @@ pub mod auth {
     use std::io::Write;
     use std::io::Read;
 
-    #[derive(Debug, Serialize, Deserialize)]
+    #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
     pub enum Rights {
         List, Read, All,
         Nothing
@@ -16,7 +16,7 @@ pub mod auth {
     impl Default for Rights {
         fn default() -> Self { Rights::List }
     }
-    
+
     #[derive(Default, Debug, Serialize, Deserialize)]
     pub struct User {
         pub username: String,
@@ -60,7 +60,7 @@ pub mod auth {
         file.write_all(serialized.as_bytes());
     }
 
-    pub fn loadDB() -> DB {
+    pub fn loadDB() -> Option<&mut DB> {
         println!("Loading DB...");
 
         let mut file = OpenOptions::new().create(true).read(true).write(true).open(".db").unwrap();
