@@ -149,7 +149,9 @@ fn main() {
                 .short("ls")
                 .long("list")
                 .takes_value(false)
-                .help("List all users.")))
+                .help("List all users."))
+            .subcommand(SubCommand::with_name("clean")
+                .help("Cleans user's database.")))
         .get_matches();
     run(_args);
 }

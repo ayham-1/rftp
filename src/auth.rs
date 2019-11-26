@@ -6,6 +6,8 @@ pub mod auth {
     use std::fs::OpenOptions;
     use std::io::Write;
     use std::io::Read;
+    use std::time::Duration;
+    use std::thread;
 
     #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
     pub enum Rights {
@@ -75,5 +77,15 @@ pub mod auth {
 
         let mut db: DB = serde_json::from_str(&contents).unwrap();
         return db;
+    }
+
+    pub fn cleanDB() {
+        println!("WARNING: CLEANING USER DATABASE!");
+        println!("Press Ctrl-c to abort.");
+        thread::sleep(Duration::from_secs(5));
+
+        std::fs::remove_file("../.rftp.db");
+
+        println!("Successfully cleaned user database.");
     }
 }

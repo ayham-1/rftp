@@ -109,14 +109,15 @@ pub mod parser {
                 result.rights = auth::Rights::Nothing;
             }
             return result;
-        }
-        if _args.is_present("rm") {
+        } else if _args.is_present("rm") {
             result.job = db::CmdJob::Remove;
             result.user = _args.subcommand_matches("add").unwrap().value_of("name").unwrap().to_string();
             return result;
-        }
-        if _args.is_present("list") {
+        } else if _args.is_present("list") {
             result.job = db::CmdJob::List;
+            return result;
+        } else if _args.is_present("clean") {
+            result.job = db::CmdJob::Clean;
             return result;
         }
         return result;
