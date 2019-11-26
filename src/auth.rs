@@ -55,12 +55,13 @@ pub mod auth {
 
         let serialized = serde_json::to_string(&_db).unwrap();
 
-        let mut file = OpenOptions::new().create(true).write(true).open(".db").unwrap();
+        std::fs::remove_file(".db");
+        let mut file = OpenOptions::new().create(true).write(true).append(false).open(".db").unwrap();
 
         file.write_all(serialized.as_bytes());
     }
 
-    pub fn loadDB() -> Option<&mut DB> {
+    pub fn loadDB() -> DB {
         println!("Loading DB...");
 
         let mut file = OpenOptions::new().create(true).read(true).write(true).open(".db").unwrap();
