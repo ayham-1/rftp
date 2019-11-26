@@ -112,7 +112,7 @@ pub mod parser {
         }
         if _args.is_present("rm") {
             result.job = db::CmdJob::Remove;
-            result.user = _args.value_of("name").unwrap_or("").to_string();
+            result.user = _args.subcommand_matches("add").unwrap().value_of("name").unwrap().to_string();
             return result;
         }
         if _args.is_present("list") {
