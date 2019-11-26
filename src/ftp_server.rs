@@ -5,12 +5,14 @@ pub mod ftp_server {
     use std::io::{BufReader, BufWriter, Read, Write, BufRead};
     use ftp::*;
     use auth::*;
+    use serverPI::*;
     
    #[derive(Default, Debug)]
     pub struct ClientConnection {
         pub user: auth::User,
         pub connect_mode: FTPModes,
-        pub data_connection_up: bool,
+        pub is_data_up: bool = false,
+        pub is_user_logged: bool = false, 
     }
     #[derive(Default, Debug)]
     pub struct ServerStatus {
@@ -50,11 +52,12 @@ pub mod ftp_server {
     fn handle_client(_stream: &mut TcpStream) {
         _stream.set_read_timeout(Some(std::time::Duration::new(120, 0)));
         ftp::sendReply(_stream, &ftp::reply::READY.to_string(), "rftp"); 
-        let mut recieved: String = "".to_string();
+        let mut recieved: String  = "".to_string();
         let mut reader = BufReader::new(_stream.try_clone().unwrap());
 
         // Authentication.
         reader.read_line(&mut recieved);
+
 
         // Ping-pong communication.
         loop {
