@@ -1,40 +1,63 @@
 pub mod serverPI {
     use regex::Regex;
+    use std::net::{TcpListener, TcpStream};
     use ftp::*;
     use defines::defines::{ServerInfo, ClientInfo, FTPModes, PortRange};
     use ftp_server::*;
     use auth::*;
 
-    #[derive(Debug, Defualt)]
+    #[derive(Debug, Default)]
     pub struct ftpCmd {
-        _cmd: String = "".to_string(),
-        _args: String = "".to_string(),
+        pub _cmd: String,
+        pub _args: String,
     }
 
     pub fn parseftpCMD(_recieved: String) -> ftpCmd {
-        let result: ftpCmd = ftpCmd::default();
+        let mut result: ftpCmd = ftpCmd::default();
 
-        _recieved._cmd = getCommand(_recieved);
-        _recieved._args = getArgs(_recieved);
-        return _recieved;
+        result._cmd = ftp::getCommand(&_recieved);
+        result._args = ftp::getArgs(&_recieved);
+        return result;
     }
     
-    pub fn applyCMD(_stream: &mut TcpStream, _user: &mut ftp_server::ClientConnection, _cmd: &ftpCmd) {
-       match _cmd._cmd {
-           "USER" => process_user_cmd(&_stream, &_user, &_cmd);
-           _ => println!("Unkown Command"); // TODO: Report to client this being unkown cmd.
-       }
+    pub fn applyCMD(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &ftpCmd) {
+        let cmd = _cmd._cmd.as_str();
+        match cmd {
+            "USER" => process_USER_cmd(&mut _stream, &mut _user, &_cmd),
+            "PASS" => process_PASS_cmd(&mut _stream, &mut _user, &_cmd),
+            "SYST" => ftp::sendReply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented."),
+            _ => { 
+                ftp::sendReply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.");
+            }
+        }
     }
     
-    pub fn process_user_cmd(_stream: &mut TcpStream, _user: &mut ftp_server::ClientConnection, _cmd: &ftpCmd) {
+    pub fn process_USER_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &ftpCmd) {
         // Do pre-checks.
         
         // Check if user is already logged in.
-        if _user.is_user_logged == false {
-            ftp::sendReply(&_stream, &ftp::reply::LOGGED_IN.to_string(), "Already Logged in.");
+        if _user.is_user_logged {
+            ftp::sendReply(&mut _stream, &ftp::reply::LOGGED_IN.to_string(), "Already Logged in.");
             return;
         }
 
-        // Apply Comand.
+        // Apply Command.
+        _user.user.username = (&_cmd._args).to_string();
+
+        // TODO: Check if anonymous access is allowed.
+        ftp::sendReply(&mut _stream, &ftp::reply::NEED_PASSWORD.to_string(), &("User ".to_owned() + _user.user.username.as_str() + " needs password."));
+    }
+
+    pub fn process_PASS_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &ftpCmd) {
+        // Do pre-checks.
+        // Check if user is already logged in.
+        if _user.is_user_logged {
+            ftp::sendReply(&mut _stream, &ftp::reply::LOGGED_IN.to_string(), "Already Logged in.");
+            return;
+        }
+
+        // Apply Command.
+        _user.user.password = (&_cmd._args).to_string();
+        _user.is_requesting_login = true;
     }
 }

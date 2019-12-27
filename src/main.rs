@@ -11,6 +11,7 @@ pub mod auth;
 pub mod ftp;
 pub mod ftp_server;
 pub mod parser;
+pub mod serverPI;
 
 use defines::defines::{FTPModes, ServerInfo, ClientInfo};
 use clap::{Arg, App, SubCommand};

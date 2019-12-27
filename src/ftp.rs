@@ -32,8 +32,11 @@ pub mod ftp {
     }
     
     pub fn getArgs(_recieved: &String) -> String {
-        let mut args = CMD_ARGS.captures(&_recieved).unwrap();
-        let mut argsstr = args.get(0).map_or("".to_string(), |m| m.as_str().to_string());
+        let mut args = CMD_ARGS.captures(&_recieved);
+        if args.is_none() == true {
+            return "".to_string();
+        }
+        let mut argsstr = args.unwrap().get(0).map_or("".to_string(), |m| m.as_str().to_string());
         remove_whitespace(&mut argsstr);
         return argsstr;
     }
