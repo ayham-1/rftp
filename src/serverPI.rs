@@ -4,7 +4,7 @@ pub mod serverPI {
     use ftp::*;
     use defines::defines::{ServerInfo, ClientInfo, FTPModes, PortRange};
     use ftp_server::*;
-    use auth::*;
+    use db::*;
 
     #[derive(Debug, Default)]
     pub struct ftpCmd {

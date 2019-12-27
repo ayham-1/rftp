@@ -7,7 +7,6 @@ extern crate serde;
 
 pub mod defines;
 pub mod db;
-pub mod auth;
 pub mod ftp;
 pub mod ftp_server;
 pub mod parser;
@@ -18,8 +17,6 @@ use clap::{Arg, App, SubCommand};
 use parser::parser::{parse_server_info, parse_client_info, parse_dbcmd_info};
 use ftp_server::ftp_server::{start_server};
 use db::db::apply_dbcmd;
-use auth::auth::DB;
-use auth::auth::*;
 
 fn run(_args: clap::ArgMatches) {
     match _args.subcommand() {

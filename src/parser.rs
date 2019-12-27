@@ -2,7 +2,6 @@ pub mod parser {
     extern crate clap;
     use defines::defines::{ServerInfo, ClientInfo, FTPModes, PortRange};
     use db::*;
-    use auth::*;
 
     pub fn parse_server_info(_args: &clap::ArgMatches) -> ServerInfo {
         let mut result = ServerInfo {
@@ -97,16 +96,16 @@ pub mod parser {
             result.pass = _args.subcommand_matches("add").unwrap().value_of("pass").unwrap().to_string();
             let _in_rights = _args.subcommand_matches("add").unwrap().value_of("access-rights").unwrap().to_string();
             if _in_rights == String::from("list") || _in_rights == String::from("0"){
-                result.rights = auth::Rights::List;
+                result.rights = db::Rights::List;
             }
             if _in_rights == String::from("read") || _in_rights == String::from("1"){
-                result.rights = auth::Rights::Read;
+                result.rights = db::Rights::Read;
             }
             if _in_rights == String::from("all") || _in_rights == String::from("2"){
-                result.rights = auth::Rights::All;
+                result.rights = db::Rights::All;
             }
             if _in_rights == String::from("none") || _in_rights == String::from("3"){
-                result.rights = auth::Rights::Nothing;
+                result.rights = db::Rights::Nothing;
             }
             return result;
         } else if _args.is_present("rm") {

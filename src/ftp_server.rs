@@ -6,12 +6,12 @@ pub mod ftp_server {
     use std::sync::mpsc::channel;
     use std::io::{BufReader, BufWriter, Read, Write, BufRead};
     use ftp::*;
-    use auth::*;
+    use db::*;
     use serverPI::*;
     
    #[derive(Default, Debug)]
     pub struct ClientConnection {
-        pub user: auth::User,
+        pub user: db::User,
         pub connect_mode: FTPModes,
         pub is_data_up: bool,
         pub is_user_logged: bool, 
@@ -26,7 +26,7 @@ pub mod ftp_server {
 
     pub fn start_server(_info: ServerInfo) {
         println!("Initializing Authorization Database...");
-        let mut db = Arc::new(Mutex::new(auth::loadDB()));
+        let mut db = Arc::new(Mutex::new(db::loadDB()));
 
         let mut _state = ServerStatus::default();
         println!("Starting Server with the following settings:");
@@ -56,7 +56,7 @@ pub mod ftp_server {
         }
     }
  
-    fn handle_client(mut _stream: &mut TcpStream, _db: std::sync::Arc<Mutex<auth::DB>>) {
+    fn handle_client(mut _stream: &mut TcpStream, _db: std::sync::Arc<Mutex<db::DB>>) {
         let mut client: ClientConnection = ClientConnection::default();
         client.is_closing = false;
 
@@ -99,7 +99,7 @@ pub mod ftp_server {
         }
     }
 
-    pub fn logginUser(mut _stream: &mut TcpStream, mut client: &mut ClientConnection, _db: &auth::DB) {
+    pub fn logginUser(mut _stream: &mut TcpStream, mut client: &mut ClientConnection, _db: &db::DB) {
         // Pre-checks.
         
         // Check if credientials are present.
