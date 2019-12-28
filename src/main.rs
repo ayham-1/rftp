@@ -12,7 +12,7 @@ pub mod ftp_server;
 pub mod parser;
 pub mod serverPI;
 
-use defines::defines::{FTPModes, ServerInfo, ClientInfo};
+use defines::defines::{ClientInfo};
 use clap::{Arg, App, SubCommand};
 use parser::parser::{parse_server_info, parse_client_info, parse_dbcmd_info};
 use ftp_server::ftp_server::{start_server};

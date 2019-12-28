@@ -1,7 +1,7 @@
 pub mod ftp {
     use regex::Regex;
     use std::net::{TcpStream};
-    use std::io::{BufReader, BufWriter, Read, Write, BufRead};
+    use std::io::{Write};
 
     lazy_static! {
         pub static ref REPLY_CODE: Regex = Regex::new(r"\d\d\d\s").unwrap();

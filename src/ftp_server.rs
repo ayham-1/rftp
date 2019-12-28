@@ -1,10 +1,9 @@
 pub mod ftp_server {
-    use defines::defines::{ServerInfo, ClientInfo, FTPModes, PortRange};
+    use defines::defines::{ServerInfo, FTPModes};
     use std::net::{TcpListener, TcpStream};
     use std::sync::{Arc, Mutex};
     use std::thread;
-    use std::sync::mpsc::channel;
-    use std::io::{BufReader, BufWriter, Read, Write, BufRead};
+    use std::io::{BufReader, BufRead};
     use ftp::*;
     use db::*;
     use serverPI::*;
@@ -17,6 +16,7 @@ pub mod ftp_server {
         pub is_user_logged: bool, 
         pub is_closing: bool,
         pub is_requesting_login: bool,
+        pub is_anon: bool,
     }
     #[derive(Default, Debug)]
     pub struct ServerStatus {
@@ -68,12 +68,15 @@ pub mod ftp_server {
         // Authentication.
         reader.read_line(&mut recieved);
         serverPI::applyCMD(&mut _stream, &mut client, &mut (serverPI::parseftpCMD((&recieved).to_string())));
-        recieved = "".to_string();
-        reader.read_line(&mut recieved);
-        serverPI::applyCMD(&mut _stream, &mut client, &mut (serverPI::parseftpCMD((&recieved).to_string())));
         if client.is_requesting_login {
+            recieved = "".to_string();
+            reader.read_line(&mut recieved);
+            serverPI::applyCMD(&mut _stream, &mut client, &mut (serverPI::parseftpCMD((&recieved).to_string())));
+        }
+        else {
             logginUser(&mut _stream, &mut client, &mut _db.lock().unwrap());
         }
+
         // Ping-pong communication.
         loop {
             recieved = "".to_string();
@@ -88,7 +91,7 @@ pub mod ftp_server {
                         return;
                     }
                     // successful read.
-                    let mut cmd = (serverPI::parseftpCMD((&recieved).to_string()));
+                    let mut cmd = serverPI::parseftpCMD((&recieved).to_string());
                     serverPI::applyCMD(&mut _stream, &mut client, &mut cmd);
                 }
                 Err(e) => {
@@ -101,6 +104,13 @@ pub mod ftp_server {
 
     pub fn logginUser(mut _stream: &mut TcpStream, mut client: &mut ClientConnection, _db: &db::DB) {
         // Pre-checks.
+
+        // Check if it is anonymous loggin.
+        if client.is_anon == true {
+            println!("Client logged in as anonymous!");
+            client.is_user_logged = true;
+            return;
+        }
         
         // Check if credientials are present.
         if client.user.username == "" && client.user.password == "" {
