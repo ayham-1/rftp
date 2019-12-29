@@ -23,6 +23,7 @@ pub mod serverPI {
             "USER" => process_USER_cmd(&mut _stream, &mut _user, &_cmd),
             "PASS" => process_PASS_cmd(&mut _stream, &mut _user, &_cmd),
             "SYST" => process_SYST_cmd(&mut _stream, &mut _user, &_cmd),
+            "QUIT" => process_QUIT_cmd(&mut _stream, &mut _user, &_cmd),
             _ => { 
                 ftp::sendReply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.");
             }
@@ -45,7 +46,6 @@ pub mod serverPI {
         if _user.user.username == "anonymous" {
             _user.is_anon = true;
             _user.is_requesting_login = true;
-            ftp::sendReply(&mut _stream, &ftp::reply::LOGGED_IN.to_string(), &("User logged in as anonymous."));
             return;
         }
         else {
@@ -72,5 +72,7 @@ pub mod serverPI {
         ftp::sendReply(&mut _stream, &ftp::reply::NAME.to_string(), "UNIX Type: L8");
     }
 
+    pub fn process_QUIT_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) {
+    }
 
 }

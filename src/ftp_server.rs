@@ -50,13 +50,19 @@ pub mod ftp_server {
             let mut clientName: String = "Client#".to_string();
             clientName.push_str(&(_state.active_connections.to_string()));
             let builder = thread::Builder::new().name(clientName);
-            let client = builder.spawn(move || {
-                handle_client(&mut stream.unwrap(), _db);
-            });
+            if _info.allow_anonymous {
+                let client = builder.spawn(move || {
+                    handle_client(&mut stream.unwrap(), _db, true);
+                });
+            } else {
+                let client = builder.spawn(move || {
+                    handle_client(&mut stream.unwrap(), _db, false);
+                });
+            }
         }
     }
  
-    fn handle_client(mut _stream: &mut TcpStream, _db: std::sync::Arc<Mutex<db::DB>>) {
+    fn handle_client(mut _stream: &mut TcpStream, _db: std::sync::Arc<Mutex<db::DB>>, anon: bool) {
         let mut client: ClientConnection = ClientConnection::default();
         client.is_closing = false;
 
@@ -69,12 +75,15 @@ pub mod ftp_server {
         reader.read_line(&mut recieved);
         serverPI::applyCMD(&mut _stream, &mut client, &mut (serverPI::parseftpCMD((&recieved).to_string())));
         if client.is_requesting_login {
+            logginUser(&mut _stream, &mut client, &mut _db.lock().unwrap(), anon);
+        }
+        else {
             recieved = "".to_string();
             reader.read_line(&mut recieved);
             serverPI::applyCMD(&mut _stream, &mut client, &mut (serverPI::parseftpCMD((&recieved).to_string())));
-        }
-        else {
-            logginUser(&mut _stream, &mut client, &mut _db.lock().unwrap());
+            if client.is_requesting_login {
+                logginUser(&mut _stream, &mut client, &mut _db.lock().unwrap(), anon);
+            }
         }
 
         // Ping-pong communication.
@@ -82,7 +91,7 @@ pub mod ftp_server {
             recieved = "".to_string();
             if client.is_closing {
                 println!("Connection Closed!"); 
-                return ();
+                return;
             }
             match reader.read_line(&mut recieved) {
                 Ok(bytes_read) => {
@@ -102,13 +111,21 @@ pub mod ftp_server {
         }
     }
 
-    pub fn logginUser(mut _stream: &mut TcpStream, mut client: &mut ClientConnection, _db: &db::DB) {
+    pub fn logginUser(mut _stream: &mut TcpStream, mut client: &mut ClientConnection, _db: &db::DB, anon: bool) {
         // Pre-checks.
 
         // Check if it is anonymous loggin.
         if client.is_anon == true {
             println!("Client logged in as anonymous!");
-            client.is_user_logged = true;
+            if anon {
+                ftp::sendReply(&mut _stream, &ftp::reply::LOGGED_IN.to_string(), &("User logged in as anonymous."));
+                client.is_user_logged = true;
+            }
+            else {
+                ftp::sendReply(&mut _stream, &ftp::reply::NOT_LOGGED_IN.to_string(), &("Anonymous is disabled on this server."));
+                client.is_user_logged = false;
+                client.is_closing = true;
+            }
             return;
         }
         
