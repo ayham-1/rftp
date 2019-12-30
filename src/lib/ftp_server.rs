@@ -1,12 +1,12 @@
 pub mod ftp_server {
-    use defines::defines::{ServerInfo, FTPModes};
+    use crate::defines::defines::{ServerInfo, FTPModes};
     use std::net::{TcpListener, TcpStream};
     use std::sync::{Arc, Mutex};
     use std::thread;
     use std::io::{BufReader, BufRead};
-    use ftp::*;
-    use db::*;
-    use server_pi::*;
+    use crate::ftp::*;
+    use crate::db::*;
+    use crate::server_pi::*;
     
    #[derive(Default, Debug)]
     pub struct ClientConnection {

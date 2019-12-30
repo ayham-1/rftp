@@ -1,7 +1,7 @@
 pub mod parser {
     extern crate clap;
-    use defines::defines::{ServerInfo, ClientInfo, FTPModes, PortRange};
-    use db::*;
+    use crate::defines::defines::{ServerInfo, ClientInfo, FTPModes, PortRange};
+    use crate::db::*;
 
     pub fn parse_server_info(_args: &clap::ArgMatches) -> ServerInfo {
         let mut result = ServerInfo {

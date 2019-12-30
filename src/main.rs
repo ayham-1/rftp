@@ -6,13 +6,13 @@ extern crate serde_json;
 extern crate serde;
 
 mod lib;
-use lib::*;
+use crate::lib::*;
 
-use defines::defines::{ClientInfo};
+use crate::defines::defines::{ClientInfo};
 use clap::{Arg, App, SubCommand};
-use parser::parser::{parse_server_info, parse_client_info, parse_dbcmd_info};
-use ftp_server::ftp_server::{start_server};
-use db::db::apply_dbcmd;
+use crate::parser::parser::{parse_server_info, parse_client_info, parse_dbcmd_info};
+use crate::ftp_server::ftp_server::{start_server};
+use crate::db::db::apply_dbcmd;
 
 fn run(_args: clap::ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
     match _args.subcommand() {
