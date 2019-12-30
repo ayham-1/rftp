@@ -10,7 +10,7 @@ pub mod db;
 pub mod ftp;
 pub mod ftp_server;
 pub mod parser;
-pub mod serverPI;
+pub mod server_pi;
 
 use defines::defines::{ClientInfo};
 use clap::{Arg, App, SubCommand};
@@ -18,22 +18,23 @@ use parser::parser::{parse_server_info, parse_client_info, parse_dbcmd_info};
 use ftp_server::ftp_server::{start_server};
 use db::db::apply_dbcmd;
 
-fn run(_args: clap::ArgMatches) {
+fn run(_args: clap::ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
     match _args.subcommand() {
         ("server", Some(m)) => {
             let _info = parse_server_info(m); 
-            start_server(_info);
+            start_server(_info)?;
         },
         ("client", Some(m)) => {
             let _info: ClientInfo = parse_client_info(m); 
         },
         ("db", Some(m)) => {
             let cmd = parse_dbcmd_info(m);
-            apply_dbcmd(&cmd);
+            apply_dbcmd(&cmd)?;
             println!("Command Processed.");
         },
         _ => println!("Specify running mode."),
     }
+    Ok(())
 }
 
 fn main() {
@@ -151,5 +152,12 @@ fn main() {
             .subcommand(SubCommand::with_name("clean")
                 .help("Cleans user's database.")))
         .get_matches();
-    run(_args);
+    match run(_args) {
+        Ok(_v) => {
+            println!("Exiting with no errors...");
+        }
+        Err(_e) => {
+            println!("Exiting with errors...");
+        }
+    }
 }

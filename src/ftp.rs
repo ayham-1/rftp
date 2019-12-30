@@ -8,31 +8,32 @@ pub mod ftp {
         pub static ref CMD_TYPE: Regex = Regex::new(r"\w{3,4}\s").unwrap();
         pub static ref CMD_ARGS: Regex = Regex::new(r"\s\w+").unwrap();
         pub static ref REMOVE_SPACES: Regex = Regex::new(r"[^\s*].*[^\s*]").unwrap();
+        pub static ref PORT_IP: Regex = Regex::new(r"^\d+,\d+,\d+,\d+").unwrap();
+        pub static ref PORT_PRT: Regex = Regex::new(r"$\d+,\d+").unwrap();
     }
 
-    pub fn genReply(_code: &str, _info: &str) -> String {
-        let mut result = String::new();
-        result = String::from(_code.to_string() + " " + _info + "\r\n");
-        return result;
+    pub fn gen_reply(_code: &str, _info: &str) -> String {
+        return String::from(_code.to_string() + " " + _info + "\r\n");
     }
 
-    pub fn sendReply(_stream: &mut TcpStream, _code: &str, _info: &str) {
-        _stream.write(genReply(_code, _info).as_bytes()); 
+    pub fn send_reply(_stream: &mut TcpStream, _code: &str, _info: &str) -> Result<(), std::io::Error> {
+        _stream.write(gen_reply(_code, _info).as_bytes())?; 
+        Ok(())
     }
 
     pub fn remove_whitespace(s: &mut String) {
         s.retain(|c| !c.is_whitespace());
     }
 
-    pub fn getCommand(_recieved: &String) -> String {
-        let mut cmd = CMD_TYPE.captures(&_recieved).unwrap();
+    pub fn get_command(_recieved: &String) -> String {
+        let cmd = CMD_TYPE.captures(&_recieved).unwrap();
         let mut cmdstr = cmd.get(0).map_or("".to_string(), |m| m.as_str().to_string());
         remove_whitespace(&mut cmdstr);
         return cmdstr;
     }
     
-    pub fn getArgs(_recieved: &String) -> String {
-        let mut args = CMD_ARGS.captures(&_recieved);
+    pub fn get_args(_recieved: &String) -> String {
+        let args = CMD_ARGS.captures(&_recieved);
         if args.is_none() == true {
             return "".to_string();
         }

@@ -6,7 +6,7 @@ pub mod ftp_server {
     use std::io::{BufReader, BufRead};
     use ftp::*;
     use db::*;
-    use serverPI::*;
+    use server_pi::*;
     
    #[derive(Default, Debug)]
     pub struct ClientConnection {
@@ -24,9 +24,9 @@ pub mod ftp_server {
         pub active_connections: i32
     }
 
-    pub fn start_server(_info: ServerInfo) {
+    pub fn start_server(_info: ServerInfo) -> Result<(), Box<dyn std::error::Error>>{
         println!("Initializing Authorization Database...");
-        let mut db = Arc::new(Mutex::new(db::loadDB()));
+        let db = Arc::new(Mutex::new(db::load_db()?));
 
         let mut _state = ServerStatus::default();
         println!("Starting Server with the following settings:");
@@ -41,48 +41,60 @@ pub mod ftp_server {
         let listener = TcpListener::bind("127.0.0.1:21").expect("Couldn't open server, check permissions!");
 
         // accept connections in parallel.
-        for mut stream in listener.incoming() {
+        for stream in listener.incoming() {
             println!("Handling new client...");
             println!("Client number: {}/{}", _state.active_connections+1, _info.max_connections);
             _state.active_connections += 1;
 
             let _db = Arc::clone(&db);
-            let mut clientName: String = "Client#".to_string();
-            clientName.push_str(&(_state.active_connections.to_string()));
-            let builder = thread::Builder::new().name(clientName);
+            let mut client_name: String = "Client#".to_string();
+            client_name.push_str(&(_state.active_connections.to_string()));
+            let builder = thread::Builder::new().name(client_name);
             if _info.allow_anonymous {
-                let client = builder.spawn(move || {
-                    handle_client(&mut stream.unwrap(), _db, true);
-                });
+                builder.spawn(move || {
+                    match handle_client(&mut stream.unwrap(), _db, true) {
+                        Ok(_v) => {},
+                        Err(_e) => {
+                            println!("Error handling {}", std::thread::current().name().unwrap());
+                        }
+                    }
+                })?;
             } else {
-                let client = builder.spawn(move || {
-                    handle_client(&mut stream.unwrap(), _db, false);
-                });
+                builder.spawn(move || {
+                    match handle_client(&mut stream.unwrap(), _db, false) {
+                        Ok(_v) => {},
+                        Err(_e) => {
+                            println!("Error handling {}", std::thread::current().name().unwrap());
+                        }
+                    }
+                })?;
             }
         }
+        Ok(())
     }
  
-    fn handle_client(mut _stream: &mut TcpStream, _db: std::sync::Arc<Mutex<db::DB>>, anon: bool) {
+    fn handle_client(mut _stream: &mut TcpStream, _db: std::sync::Arc<Mutex<db::DB>>, anon: bool) ->
+        Result<(), Box<dyn std::error::Error>> {
         let mut client: ClientConnection = ClientConnection::default();
         client.is_closing = false;
 
-        _stream.set_read_timeout(Some(std::time::Duration::new(120, 0)));
-        ftp::sendReply(_stream, &ftp::reply::READY.to_string(), "rftp"); 
+        _stream.set_read_timeout(Some(std::time::Duration::new(120, 0)))?;
+        ftp::send_reply(_stream, &ftp::reply::READY.to_string(), "rftp")?;
         let mut recieved: String  = "".to_string();
-        let mut reader = BufReader::new(_stream.try_clone().unwrap());
+        let mut reader = BufReader::new(_stream.try_clone()?);
 
         // Authentication.
-        reader.read_line(&mut recieved);
-        serverPI::applyCMD(&mut _stream, &mut client, &mut (serverPI::parseftpCMD((&recieved).to_string())));
+        reader.read_line(&mut recieved)?;
+        server_pi::apply_cmd(&mut _stream, &mut client, &mut (server_pi::parseftp_cmd((&recieved).to_string())))?;
         if client.is_requesting_login {
-            logginUser(&mut _stream, &mut client, &mut _db.lock().unwrap(), anon);
+            loggin_user(&mut _stream, &mut client, &mut _db.lock().unwrap(), anon)?;
         }
         else {
             recieved = "".to_string();
-            reader.read_line(&mut recieved);
-            serverPI::applyCMD(&mut _stream, &mut client, &mut (serverPI::parseftpCMD((&recieved).to_string())));
+            reader.read_line(&mut recieved)?;
+            server_pi::apply_cmd(&mut _stream, &mut client, &mut (server_pi::parseftp_cmd((&recieved).to_string())))?;
             if client.is_requesting_login {
-                logginUser(&mut _stream, &mut client, &mut _db.lock().unwrap(), anon);
+                loggin_user(&mut _stream, &mut client, &mut _db.lock().unwrap(), anon)?;
             }
         }
 
@@ -91,48 +103,52 @@ pub mod ftp_server {
             recieved = "".to_string();
             if client.is_closing {
                 println!("Connection Closed!"); 
-                return;
+                return Ok(())
             }
             match reader.read_line(&mut recieved) {
                 Ok(bytes_read) => {
                     if bytes_read == 0 {
                         println!("Connection Closed!"); 
-                        return;
+                        return Ok(())
                     }
                     // successful read.
-                    let mut cmd = serverPI::parseftpCMD((&recieved).to_string());
-                    serverPI::applyCMD(&mut _stream, &mut client, &mut cmd);
+                    let mut cmd = server_pi::parseftp_cmd((&recieved).to_string());
+                    server_pi::apply_cmd(&mut _stream, &mut client, &mut cmd)?;
                 }
                 Err(e) => {
                     println!("Connection closed: {}", e); 
-                    return;
+                    return Ok(())
                 }
             }
         }
     }
 
-    pub fn logginUser(mut _stream: &mut TcpStream, mut client: &mut ClientConnection, _db: &db::DB, anon: bool) {
+    pub fn loggin_user(mut _stream: &mut TcpStream, mut client: &mut ClientConnection, 
+        _db: &db::DB, anon: bool) -> 
+        Result<(), Box<dyn std::error::Error>> {
         // Pre-checks.
 
         // Check if it is anonymous loggin.
         if client.is_anon == true {
             println!("Client logged in as anonymous!");
             if anon {
-                ftp::sendReply(&mut _stream, &ftp::reply::LOGGED_IN.to_string(), &("User logged in as anonymous."));
+                ftp::send_reply(&mut _stream, &ftp::reply::LOGGED_IN.to_string(), 
+                    &("User logged in as anonymous."))?;
                 client.is_user_logged = true;
             }
             else {
-                ftp::sendReply(&mut _stream, &ftp::reply::NOT_LOGGED_IN.to_string(), &("Anonymous is disabled on this server."));
+                ftp::send_reply(&mut _stream, &ftp::reply::NOT_LOGGED_IN.to_string(), 
+                    &("Anonymous is disabled on this server."))?;
                 client.is_user_logged = false;
                 client.is_closing = true;
             }
-            return;
+            return Ok(());
         }
         
         // Check if credientials are present.
         if client.user.username == "" && client.user.password == "" {
-            ftp::sendReply(&mut _stream, &ftp::reply::BAD_ARGUMENTS.to_string(), "Credientails are empty.");
-            return;
+            ftp::send_reply(&mut _stream, &ftp::reply::BAD_ARGUMENTS.to_string(), "Credientails are empty.")?;
+            return Ok(());
         }
 
         // Try to loggin user.
@@ -144,13 +160,14 @@ pub mod ftp_server {
                 let mut result: String = "User ".to_string();
                 result.push_str(&client.user.username);
                 result.push_str(&(" logged in.".to_string()));
-                ftp::sendReply(&mut _stream, &ftp::reply::LOGGED_IN.to_string(), &result);
-                return;
+                ftp::send_reply(&mut _stream, &ftp::reply::LOGGED_IN.to_string(), &result)?;
+                return Ok(());
             }
         }
 
         println!("Unsuccessful loggin attempt.");
-        ftp::sendReply(&mut _stream, &ftp::reply::CLOSING.to_string(), "Bad credientails.");
+        ftp::send_reply(&mut _stream, &ftp::reply::CLOSING.to_string(), "Bad credientails.")?;
         client.is_closing = true;
+        return Ok(());
     }
 }
