@@ -5,12 +5,8 @@ extern crate lazy_static;
 extern crate serde_json;
 extern crate serde;
 
-pub mod defines;
-pub mod db;
-pub mod ftp;
-pub mod ftp_server;
-pub mod parser;
-pub mod server_pi;
+mod lib;
+use lib::*;
 
 use defines::defines::{ClientInfo};
 use clap::{Arg, App, SubCommand};
