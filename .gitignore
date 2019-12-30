@@ -14,4 +14,3 @@ Cargo.lock
 
 # Ignore accidental .db pushes.
 .db
-*db*
