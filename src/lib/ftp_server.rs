@@ -12,6 +12,8 @@ pub mod ftp_server {
     pub struct ClientConnection {
         pub user: db::User,
         pub connect_mode: FTPModes,
+        pub data_ip: String,
+        pub data_port: i32,
         pub is_data_up: bool,
         pub is_user_logged: bool, 
         pub is_closing: bool,

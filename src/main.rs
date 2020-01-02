@@ -153,7 +153,7 @@ fn main() {
             println!("Exiting with no errors...");
         }
         Err(_e) => {
-            println!("Exiting with errors...");
+            println!("Exiting with errors... \n Error: {}", _e);
         }
     }
 }

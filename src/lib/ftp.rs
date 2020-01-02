@@ -6,10 +6,11 @@ pub mod ftp {
     lazy_static! {
         pub static ref REPLY_CODE: Regex = Regex::new(r"\d\d\d\s").unwrap();
         pub static ref CMD_TYPE: Regex = Regex::new(r"\w{3,4}\s").unwrap();
-        pub static ref CMD_ARGS: Regex = Regex::new(r"\s\w+").unwrap();
+        pub static ref CMD_ARGS: Regex = Regex::new(r"\s.+").unwrap();
         pub static ref REMOVE_SPACES: Regex = Regex::new(r"[^\s*].*[^\s*]").unwrap();
-        pub static ref PORT_IP: Regex = Regex::new(r"^\d+,\d+,\d+,\d+").unwrap();
-        pub static ref PORT_PRT: Regex = Regex::new(r"$\d+,\d+").unwrap();
+        pub static ref PORT_IP: Regex = Regex::new(r"(\d+),(\d+),(\d+),(\d+)").unwrap();
+        pub static ref PORT_PRT: Regex = Regex::new(r"(\d+),(\d+)$").unwrap();
+        pub static ref PORT_OCTI: Regex = Regex::new(r"(\d+)").unwrap();
     }
 
     pub fn gen_reply(_code: &str, _info: &str) -> String {
@@ -51,7 +52,7 @@ pub mod ftp {
         //pub const ABOUT_TO_SEND: u32               = 150;
 
         // 2xx: Positive Completion Reply
-        //pub const COMMAND_OK: u32                  = 200;
+        pub const COMMAND_OK: u32                  = 200;
         pub const COMMAND_NOT_IMPLEMENTED: u32     = 202;
         //pub const SYSTEM: u32                      = 211;
         //pub const DIRECTORY: u32                   = 212;

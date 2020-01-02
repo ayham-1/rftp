@@ -54,8 +54,8 @@ pub mod db {
 
         let serialized = serde_json::to_string(&_db).unwrap();
 
-        std::fs::remove_file("~/.rftp.db")?;
-        let mut file = OpenOptions::new().create(true).write(true).append(false).open("~/.rftp.db")?;
+        std::fs::remove_file("../.rftp.db")?;
+        let mut file = OpenOptions::new().create(true).write(true).append(false).open("../.rftp.db")?;
         Ok(file.write_all(serialized.as_bytes())?)
     }
 
@@ -66,6 +66,9 @@ pub mod db {
 
         let mut contents: String = "".to_string();
         file.read_to_string(&mut contents)?;
+        if contents == "" {
+            return Ok(DB::default())
+        }
         Ok(serde_json::from_str(&contents)?)
     }
 
