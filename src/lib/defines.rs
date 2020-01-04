@@ -6,6 +6,11 @@ pub mod defines {
     }
     #[derive(Default, Debug)]
     pub struct PortRange { pub x: i32, pub y: i32 }
+    #[derive(Debug)]
+    pub enum FTPTypes { ASCII, BINARY }
+    impl Default for FTPTypes {
+        fn default() -> Self { FTPTypes::ASCII }
+    }
 
     #[derive(Default, Debug)]
     pub struct ServerInfo {

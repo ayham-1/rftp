@@ -2,6 +2,7 @@ pub mod server_pi {
     use std::net::{TcpStream};
     use crate::ftp::*;
     use crate::ftp_server::*;
+    use crate::defines::defines::{FTPTypes};
 
     #[derive(Debug, Default)]
     pub struct FtpCmd {
@@ -26,9 +27,24 @@ pub mod server_pi {
             "SYST" => process_syst_cmd(&mut _stream, &mut _user, &_cmd)?,
             "QUIT" => process_quit_cmd(&mut _stream, &mut _user, &_cmd)?,
             "PORT" => process_port_cmd(&mut _stream, &mut _user, &_cmd)?,
+            "TYPE" => process_type_cmd(&mut _stream, &mut _user, &_cmd)?,
             _ => { 
                 ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
             }
+        }
+        return Ok(());
+    }
+    pub fn process_type_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+        if _cmd._args == "A" {
+            _user.data_type = FTPTypes::ASCII;
+            ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_OK.to_string(), "Command OK.")?;
+        } else if _cmd._args == "I" {
+            _user.data_type = FTPTypes::BINARY;
+            ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_OK.to_string(), "Command OK.")?;
+        }
+        else {
+            ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "This type is not implemented.")?;
         }
         return Ok(());
     }
