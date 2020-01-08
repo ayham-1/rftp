@@ -1,8 +1,7 @@
 pub mod server_pi {
     use std::net::{Shutdown, TcpStream};
     use crate::ftp::*;
-    use crate::ftp_server::*;
-    use crate::defines::defines::{FTPTypes};
+    use crate::defines::defines::*;
     use std::process::Command;
     use std::io::Write;
     use net2::TcpBuilder;
@@ -15,13 +14,14 @@ pub mod server_pi {
 
     pub fn parseftp_cmd(_recieved: String) -> FtpCmd {
         let mut result: FtpCmd = FtpCmd::default();
+        if _recieved == "" { return result; }
 
         result._cmd = ftp::get_command(&_recieved);
         result._args = ftp::get_args(&_recieved);
         return result;
     }
     
-    pub fn apply_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
+    pub fn apply_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
         let cmd = _cmd._cmd.as_str();
         match cmd {
@@ -40,12 +40,14 @@ pub mod server_pi {
         return Ok(());
     }
 
-    pub fn process_list_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
+    pub fn process_help_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
+        let banner = "Made by altffour.";
+        _stream.write(banner.as_bytes())?;
         return Ok(());
     }
 
-    pub fn process_list_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
+    pub fn process_list_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
         // Open data connection.
         ftp::send_reply(&mut _stream, &ftp::reply::ABOUT_TO_SEND.to_string(), "Opening ASCII Data connection.")?;
@@ -73,7 +75,7 @@ pub mod server_pi {
         return Ok(());
     }
 
-    pub fn process_type_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
+    pub fn process_type_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
         if _cmd._args == "A" {
             _user.data_type = FTPTypes::ASCII;
@@ -88,7 +90,7 @@ pub mod server_pi {
         return Ok(());
     }
 
-    pub fn process_port_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
+    pub fn process_port_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
         // get IP.
         let ipmatch = ftp::PORT_IP.captures(&_cmd._args).unwrap();
@@ -110,7 +112,7 @@ pub mod server_pi {
         return Ok(());
     }
 
-    pub fn process_user_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
+    pub fn process_user_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
         // Do pre-checks.
         
@@ -137,7 +139,7 @@ pub mod server_pi {
         return Ok(());
     }
 
-    pub fn process_pass_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
+    pub fn process_pass_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
         // Do pre-checks.
         // Check if user is already logged in.
@@ -152,13 +154,13 @@ pub mod server_pi {
         return Ok(());
     }
 
-    pub fn process_syst_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
+    pub fn process_syst_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
         ftp::send_reply(&mut _stream, &ftp::reply::NAME.to_string(), "UNIX Type: L8")?;
         return Ok(());
     }
 
-    pub fn process_quit_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
+    pub fn process_quit_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
         ftp::send_reply(&mut _stream, &ftp::reply::CLOSING.to_string(), "Few, one off the racks.")?;
         return Ok(());

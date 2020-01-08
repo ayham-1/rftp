@@ -1,5 +1,5 @@
 pub mod ftp_server {
-    use crate::defines::defines::{ServerInfo, FTPModes, FTPTypes};
+    use crate::defines::defines::*;
     use std::net::{TcpListener, TcpStream};
     use std::sync::{Arc, Mutex};
     use std::thread;
@@ -7,47 +7,7 @@ pub mod ftp_server {
     use crate::ftp::*;
     use crate::db::*;
     use crate::server_pi::*;
-    use net2::TcpBuilder;
-    
-   #[derive(Debug)]
-    pub struct ClientConnection {
-        pub user: db::User,
-        pub connect_mode: FTPModes,
-        pub data_type: FTPTypes,
-        pub data_ip: String,
-        pub data_port: i32,
-        pub data_conc: TcpStream,
-        pub cwd: String,
-        pub is_data_up: bool,
-        pub is_user_logged: bool, 
-        pub is_closing: bool,
-        pub is_requesting_login: bool,
-        pub is_anon: bool,
-    }
-    impl Default for ClientConnection {
-        fn default() -> Self {
-            ClientConnection {
-                data_conc: TcpBuilder::new_v4().unwrap().to_tcp_stream().unwrap(),
-                user: db::User::default(),
-                connect_mode: FTPModes::default(),
-                data_type: FTPTypes::default(),
-                data_ip: String::default(),
-                data_port: i32::default(),
-                cwd: String::default(),
-                is_data_up: bool::default(),
-                is_user_logged: bool::default(),
-                is_closing: bool::default(),
-                is_requesting_login: bool::default(),
-                is_anon: bool::default(),
-            }
-        } 
-    }
-    #[derive(Default, Debug)]
-    pub struct ServerStatus {
-        pub is_command_port_open: bool,
-        pub active_connections: i32
-    }
-
+   
     pub fn start_server(_info: ServerInfo) -> Result<(), Box<dyn std::error::Error>>{
         println!("Initializing Authorization Database...");
         let db = Arc::new(Mutex::new(db::load_db()?));
@@ -62,37 +22,34 @@ pub mod ftp_server {
         println!("Current Working Directory: {:?}", _info.pwd);
         println!("Started Server!");
 
-        let listener = TcpListener::bind("0.0.0.0:21").expect("Couldn't open server, check permissions!");
+        let _linfo = Arc::new(Mutex::new(_info));
+        let _lstate = Arc::new(Mutex::new(_state));
+
+        let listener = TcpListener::bind("0.0.0.0:21").expect("Couldn't open server, run with sudo!");
 
         // accept connections in parallel.
         for stream in listener.incoming() {
-            println!("Handling new client...");
-            println!("Client number: {}/{}", _state.active_connections+1, _info.max_connections);
-            _state.active_connections += 1;
-
+            let _info = Arc::clone(&_linfo);
+            let _lstate = Arc::clone(&_lstate);
             let _db = Arc::clone(&db);
+
+            println!("Handling new client...");
+            println!("Client number: {}/{}", _lstate.lock().unwrap().active_connections+1, _info.lock().unwrap().max_connections);
+            _lstate.lock().unwrap().active_connections += 1;
+
             let mut client_name: String = "Client#".to_string();
-            client_name.push_str(&(_state.active_connections.to_string()));
+            client_name.push_str(&(_lstate.lock().unwrap().active_connections.to_string()));
             let builder = thread::Builder::new().name(client_name);
-            if _info.allow_anonymous {
                 builder.spawn(move || {
-                    match handle_client(&mut stream.unwrap(), _db, true) {
+                    match handle_client(&mut stream.unwrap(), _db, _info.lock().unwrap().allow_anonymous) {
                         Ok(_v) => {},
                         Err(_e) => {
                             println!("Error handling {}", std::thread::current().name().unwrap());
                         }
                     }
+                    println!("Client#{} got enough of their misery", _lstate.lock().unwrap().active_connections);
+                    _lstate.lock().unwrap().active_connections -= 1;
                 })?;
-            } else {
-                builder.spawn(move || {
-                    match handle_client(&mut stream.unwrap(), _db, false) {
-                        Ok(_v) => {},
-                        Err(_e) => {
-                            println!("Error handling {}", std::thread::current().name().unwrap());
-                        }
-                    }
-                })?;
-            }
         }
         Ok(())
     }
