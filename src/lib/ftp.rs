@@ -10,7 +10,8 @@ pub mod ftp {
         pub static ref REMOVE_SPACES: Regex = Regex::new(r"[^\s*].*[^\s*]").unwrap();
         pub static ref PORT_IP: Regex = Regex::new(r"(\d+),(\d+),(\d+),(\d+)").unwrap();
         pub static ref PORT_PRT: Regex = Regex::new(r"(\d+),(\d+)$").unwrap();
-        pub static ref PORT_OCTI: Regex = Regex::new(r"(\d+)").unwrap();
+        pub static ref PORT_OCTI0: Regex = Regex::new(r"^(\d+)").unwrap();
+        pub static ref PORT_OCTI1: Regex = Regex::new(r"(\d+)$").unwrap();
     }
 
     pub fn gen_reply(_code: &str, _info: &str) -> String {
@@ -49,7 +50,7 @@ pub mod ftp {
         //pub const RESTART_MARKER: u32              = 110;
         //pub const READY_MINUTE: u32                = 120;
         //pub const ALREADY_OPEN: u32                = 125;
-        //pub const ABOUT_TO_SEND: u32               = 150;
+        pub const ABOUT_TO_SEND: u32               = 150;
 
         // 2xx: Positive Completion Reply
         pub const COMMAND_OK: u32                  = 200;
@@ -62,7 +63,7 @@ pub mod ftp {
         pub const READY: u32                       = 220;
         pub const CLOSING: u32                     = 221;
         //pub const DATA_CONNECTION_OPEN: u32        = 225;
-        //pub const CLOSING_DATA_CONNECTION: u32     = 226;
+        pub const CLOSING_DATA_CONNECTION: u32     = 226;
         //pub const PASSIVE_MODE: u32                = 227;
         //pub const LONG_PASSIVE_MODE: u32           = 228;
         //pub const EXTENDED_PASSIVE_MODE: u32       = 229;

@@ -1,8 +1,11 @@
 pub mod server_pi {
-    use std::net::{TcpStream};
+    use std::net::{Shutdown, TcpStream};
     use crate::ftp::*;
     use crate::ftp_server::*;
     use crate::defines::defines::{FTPTypes};
+    use std::process::Command;
+    use std::io::Write;
+    use net2::TcpBuilder;
 
     #[derive(Debug, Default)]
     pub struct FtpCmd {
@@ -28,12 +31,48 @@ pub mod server_pi {
             "QUIT" => process_quit_cmd(&mut _stream, &mut _user, &_cmd)?,
             "PORT" => process_port_cmd(&mut _stream, &mut _user, &_cmd)?,
             "TYPE" => process_type_cmd(&mut _stream, &mut _user, &_cmd)?,
+            "LIST" => process_list_cmd(&mut _stream, &mut _user, &_cmd)?,
+            "HELP" => process_help_cmd(&mut _stream, &mut _user, &_cmd)?,
             _ => { 
                 ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
             }
         }
         return Ok(());
     }
+
+    pub fn process_list_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+        return Ok(());
+    }
+
+    pub fn process_list_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+        // Open data connection.
+        ftp::send_reply(&mut _stream, &ftp::reply::ABOUT_TO_SEND.to_string(), "Opening ASCII Data connection.")?;
+        let address = &mut _user.data_ip;
+        address.push_str(":");
+        address.push_str(_user.data_port.to_string().as_str());
+        _user.data_conc = TcpBuilder::new_v4().unwrap().reuse_address(false).unwrap().bind("0.0.0.0:20").unwrap().connect(address.as_str()).unwrap();
+
+        if _cmd._args == "" {
+            let result = Command::new("ls")
+                .arg("-l")
+                .output().expect("ls command not found.");
+            _user.data_conc.write(&result.stdout)?;
+        } else {
+            let mut _args = "-l ".to_string();
+            _args.push_str(&_cmd._args);
+            println!("{}", _args);
+            let result = Command::new("ls")
+                .arg(_args)
+                .output().expect("ls command not found.");
+            _user.data_conc.write(&result.stdout)?;
+        }
+        ftp::send_reply(&mut _stream, &ftp::reply::CLOSING_DATA_CONNECTION.to_string(), "Transfer Complete.")?;
+        _user.data_conc.shutdown(Shutdown::Both)?;
+        return Ok(());
+    }
+
     pub fn process_type_cmd(mut _stream: &mut TcpStream, mut _user: &mut ftp_server::ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
         if _cmd._args == "A" {
@@ -53,13 +92,13 @@ pub mod server_pi {
         Result<(), Box<dyn std::error::Error>> {
         // get IP.
         let ipmatch = ftp::PORT_IP.captures(&_cmd._args).unwrap();
-        let _ip = ipmatch.get(0).map_or("".to_string(), |m| m.as_str().to_string());
+        let _ip = str::replace(ipmatch.get(0).map_or("".to_string(), |m| m.as_str().to_string()).as_str(), ",", ".");
+
         // get PORT.
         let portmatch = ftp::PORT_PRT.captures(&_cmd._args).unwrap();
         let _portstr = portmatch.get(0).map_or("".to_string(), |m| m.as_str().to_string());
-        let _portoctis = ftp::PORT_OCTI.captures(&_portstr).unwrap();
-        let _port0: i32 = _portoctis.get(0).map_or(0, |m| m.as_str().parse().unwrap());
-        let _port1: i32 = _portoctis.get(1).map_or(0, |m| m.as_str().parse().unwrap());
+        let _port0: i32 = ftp::PORT_OCTI0.captures(&_portstr).unwrap().get(0).map_or(0, |m| m.as_str().parse().unwrap());
+        let _port1: i32 = ftp::PORT_OCTI1.captures(&_portstr).unwrap().get(0).map_or(0, |m| m.as_str().parse().unwrap());
         let _port: i32 = (_port0*256)+_port1;
 
         // set IP and PORT.

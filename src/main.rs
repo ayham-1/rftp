@@ -4,6 +4,7 @@ extern crate regex;
 extern crate lazy_static;
 extern crate serde_json;
 extern crate serde;
+extern crate net2;
 
 mod lib;
 use crate::lib::*;
