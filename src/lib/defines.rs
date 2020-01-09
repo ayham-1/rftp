@@ -54,7 +54,7 @@ pub mod defines {
                 data_type: FTPTypes::default(),
                 data_ip: String::default(),
                 data_port: i32::default(),
-                cwd: String::default(),
+                cwd: "".to_string(),
                 is_data_up: bool::default(),
                 is_user_logged: bool::default(),
                 is_closing: bool::default(),

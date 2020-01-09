@@ -108,7 +108,7 @@ pub mod ftp {
         //pub const LOGGED_OUT: u32                  = 231;
         //pub const LOGOUT_ACK: u32                  = 232;
         //pub const AUTH_OK: u32                     = 234;
-        //pub const REQUESTED_FILE_ACTION_OK: u32    = 250;
+        pub const REQUESTED_FILE_ACTION_OK: u32    = 250;
         //pub const PATH_CREATED: u32                = 257;
 
         // 3xx: Positive intermediate Reply
