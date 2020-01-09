@@ -34,12 +34,19 @@ pub mod server_pi {
             "TYPE" => process_type_cmd(&mut _stream, &mut _user, &_cmd)?,
             "LIST" => process_list_cmd(&mut _stream, &mut _user, &_cmd)?,
             "HELP" => process_help_cmd(&mut _stream, &mut _user, &_cmd)?,
+            "NOOP" => process_noop_cmd(&mut _stream, &mut _user, &_cmd)?,
             _ => { 
                 ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
             }
         }
         return Ok(());
     }
+    pub fn process_noop_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+            ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_OK.to_string(), "Stop bothering me.")?;
+            return Ok(());
+    }
+
     pub fn process_pasv_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
         // set connection mode.
