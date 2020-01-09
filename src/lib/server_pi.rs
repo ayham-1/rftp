@@ -54,7 +54,7 @@ pub mod server_pi {
         let address = &mut _user.data_ip;
         address.push_str(":");
         address.push_str(_user.data_port.to_string().as_str());
-        _user.data_conc = TcpBuilder::new_v4().unwrap().reuse_address(false).unwrap().bind("0.0.0.0:20").unwrap().connect(address.as_str()).unwrap();
+        _user.data_conc = TcpBuilder::new_v4().unwrap().reuse_address(true).unwrap().bind("0.0.0.0:20").unwrap().connect(address.as_str()).unwrap();
 
         if _cmd._args == "" {
             let result = Command::new("ls")
