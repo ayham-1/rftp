@@ -5,6 +5,8 @@ extern crate lazy_static;
 extern crate serde_json;
 extern crate serde;
 extern crate net2;
+extern crate log;
+extern crate simple_logger;
 
 mod lib;
 use crate::lib::*;
@@ -14,6 +16,7 @@ use clap::{Arg, App, SubCommand};
 use crate::parser::parser::{parse_server_info, parse_client_info, parse_dbcmd_info};
 use crate::ftp_server::ftp_server::{start_server};
 use crate::db::db::apply_dbcmd;
+use log::{trace, error};
 
 fn run(_args: clap::ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
     match _args.subcommand() {
@@ -27,14 +30,15 @@ fn run(_args: clap::ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
         ("db", Some(m)) => {
             let cmd = parse_dbcmd_info(m);
             apply_dbcmd(&cmd)?;
-            println!("Command Processed.");
+            trace!("Command Processed.");
         },
-        _ => println!("Specify running mode."),
+        _ => error!("Specify running mode."),
     }
     Ok(())
 }
 
 fn main() {
+    // Set-up command line interface.
     let _args = App::new("ftp")
         .version("0.1.4")
         .author("realaltffour <ayhamaboualfadl@gmail.com>")
@@ -149,12 +153,13 @@ fn main() {
             .subcommand(SubCommand::with_name("clean")
                 .help("Cleans user's database.")))
         .get_matches();
+    simple_logger::init().unwrap();
     match run(_args) {
         Ok(_v) => {
-            println!("Exiting with no errors...");
+            trace!("Exiting with no errors...");
         }
         Err(_e) => {
-            println!("Exiting with errors... \n Error: {}", _e);
+            error!("Exiting with errors... \n Error: {}", _e);
         }
     }
 }

@@ -7,20 +7,21 @@ pub mod ftp_server {
     use crate::ftp::*;
     use crate::db::*;
     use crate::server_pi::*;
-   
-    pub fn start_server(_info: ServerInfo) -> Result<(), Box<dyn std::error::Error>>{
-        println!("Initializing Authorization Database...");
+
+    use log::{info, trace, error};
+  
+    pub fn start_server(_info: ServerInfo) -> Result<(), Box<dyn std::error::Error>> {
         let db = Arc::new(Mutex::new(db::load_db()?));
 
         let mut _state = ServerStatus::default();
-        println!("Starting Server with the following settings:");
-        println!("Allowed Modes: {:?}", _info.mode);
-        println!("Max Connections allowed: {}", _info.max_connections);
-        println!("Port Range: {:?}", _info.port_range);
-        println!("Anonymous Access: {}", _info.allow_anonymous);
-        println!("Log file: {}", _info.log_file);
-        println!("Current Working Directory: {:?}", _info.pwd);
-        println!("Started Server!");
+        info!("Starting Server with the following settings:");
+        info!("Allowed Modes: {:?}", _info.mode);
+        info!("Max Connections allowed: {}", _info.max_connections);
+        info!("Port Range: {:?}", _info.port_range);
+        info!("Anonymous Access: {}", _info.allow_anonymous);
+        info!("Log file: {}", _info.log_file);
+        info!("Current Working Directory: {:?}", _info.pwd);
+        info!("Started Server!");
 
         let _linfo = Arc::new(Mutex::new(_info));
         let _lstate = Arc::new(Mutex::new(_state));
@@ -33,8 +34,8 @@ pub mod ftp_server {
             let _lstate = Arc::clone(&_lstate);
             let _db = Arc::clone(&db);
 
-            println!("Handling new client...");
-            println!("Client number: {}/{}", _lstate.lock().unwrap().active_connections+1, _info.lock().unwrap().max_connections);
+            info!("Handling new client...");
+            info!("Client number: {}/{}", _lstate.lock().unwrap().active_connections+1, _info.lock().unwrap().max_connections);
             _lstate.lock().unwrap().active_connections += 1;
 
             let mut client_name: String = "Client#".to_string();
@@ -44,10 +45,10 @@ pub mod ftp_server {
                     match handle_client(&mut stream.unwrap(), _db, _info.lock().unwrap().allow_anonymous) {
                         Ok(_v) => {},
                         Err(_e) => {
-                            println!("Error handling {}", std::thread::current().name().unwrap());
+                            error!("Error handling {}", std::thread::current().name().unwrap());
                         }
                     }
-                    println!("Client#{} got enough of their misery", _lstate.lock().unwrap().active_connections);
+                    info!("Client#{} got enough of their misery", _lstate.lock().unwrap().active_connections);
                     _lstate.lock().unwrap().active_connections -= 1;
                 })?;
         }
@@ -83,13 +84,13 @@ pub mod ftp_server {
         loop {
             recieved = "".to_string();
             if client.is_closing {
-                println!("Connection Closed!"); 
+                info!("Connection Closed!"); 
                 return Ok(())
             }
             match reader.read_line(&mut recieved) {
                 Ok(bytes_read) => {
                     if bytes_read == 0 {
-                        println!("Connection Closed!"); 
+                        info!("Connection Closed!"); 
                         return Ok(())
                     }
                     // successful read.
@@ -97,7 +98,7 @@ pub mod ftp_server {
                     server_pi::apply_cmd(&mut _stream, &mut client, &mut cmd)?;
                 }
                 Err(e) => {
-                    println!("Connection closed: {}", e); 
+                    error!("Connection closed: {}", e); 
                     return Ok(())
                 }
             }
@@ -111,7 +112,7 @@ pub mod ftp_server {
 
         // Check if it is anonymous loggin.
         if client.is_anon == true {
-            println!("Client logged in as anonymous!");
+            trace!("Client logged in as anonymous!");
             if anon {
                 ftp::send_reply(&mut _stream, &ftp::reply::LOGGED_IN.to_string(), 
                     &("User logged in as anonymous."))?;
@@ -137,7 +138,7 @@ pub mod ftp_server {
             if client.user.username == i.username && client.user.password == i.password {
                 client.user.rights = i.rights;
                 client.is_user_logged = true;
-                println!("Client logged in!");
+                trace!("Client logged in!");
                 let mut result: String = "User ".to_string();
                 result.push_str(&client.user.username);
                 result.push_str(&(" logged in.".to_string()));
@@ -146,7 +147,7 @@ pub mod ftp_server {
             }
         }
 
-        println!("Unsuccessful loggin attempt.");
+        trace!("Unsuccessful loggin attempt.");
         ftp::send_reply(&mut _stream, &ftp::reply::CLOSING.to_string(), "Bad credientails.")?;
         client.is_closing = true;
         return Ok(());

@@ -64,7 +64,6 @@ pub mod server_pi {
         } else {
             let mut _args = "-l ".to_string();
             _args.push_str(&_cmd._args);
-            println!("{}", _args);
             let result = Command::new("ls")
                 .arg(_args)
                 .output().expect("ls command not found.");

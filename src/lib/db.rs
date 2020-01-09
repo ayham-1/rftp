@@ -5,6 +5,7 @@ pub mod db {
     use std::io::Read;
     use std::time::Duration;
     use std::thread;
+    use log::{info, warn, trace};
 
     #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
     pub enum Rights {
@@ -50,7 +51,7 @@ pub mod db {
     }
 
     pub fn save_db(_db: &DB) -> Result<(), std::io::Error> {
-        println!("Saving DB...");
+        trace!("Saving DB...");
 
         let serialized = serde_json::to_string(&_db).unwrap();
 
@@ -60,7 +61,7 @@ pub mod db {
     }
 
     pub fn load_db() -> Result<DB, Box<dyn std::error::Error>> {
-        println!("Loading DB...");
+        trace!("Loading DB...");
 
         let mut file = OpenOptions::new().create(true).read(true).write(true).open("../.rftp.db")?;
 
@@ -73,13 +74,13 @@ pub mod db {
     }
 
     pub fn clean_db() -> Result<(), std::io::Error> {
-        println!("WARNING: CLEANING USER DATABASE!");
-        println!("Press Ctrl-c to abort.");
+        warn!("WARNING: CLEANING USER DATABASE!");
+        warn!("Press Ctrl-c to abort.");
         thread::sleep(Duration::from_secs(5));
 
         std::fs::remove_file("../.rftp.db")?;
 
-        println!("Successfully cleaned user database.");
+        info!("Successfully cleaned user database.");
         Ok(())
     }
 
@@ -101,7 +102,7 @@ pub mod db {
     
     pub fn apply_dbcmd(_cmd: &DBCmd) -> Result<(), Box<dyn std::error::Error>> {
         let mut _db: DB = DB::default();
-        println!("Currently processing command: {:?}", _cmd.job);
+        trace!("Currently processing command: {:?}", _cmd.job);
         _db = load_db()?;
 
         match _cmd.job {
@@ -115,17 +116,17 @@ pub mod db {
     }
 
     pub fn db_add(_db: &mut DB,_cmd: &DBCmd) {
-        println!("Adding new user to local database.");
-        println!("Username: {}", _cmd.user);
-        println!("Password: {}", _cmd.pass);
-        println!("Rights: {:?}", _cmd.rights);
+        info!("Adding new user to local database.");
+        info!("Username: {}", _cmd.user);
+        info!("Password: {}", _cmd.pass);
+        info!("Rights: {:?}", _cmd.rights);
 
         add_user(_db, (&_cmd.user).to_string(), (&_cmd.pass).to_string(), _cmd.rights);
     }
 
     pub fn db_rm(_db: &mut DB,_cmd: &DBCmd) {
-        println!("Removing user to local database.");
-        println!("Username: {}", _cmd.user);
+        warn!("Removing user to local database.");
+        warn!("Username: {}", _cmd.user);
 
         rm_user(_db, (&_cmd.user).to_string());
     }
@@ -133,12 +134,12 @@ pub mod db {
     pub fn db_list(_db: &DB,_cmd: &DBCmd) {
         let mut counter: i32 = 0;
         for i in _db.user.iter() {
-            println!("====================================");
-            println!("User number: {}", counter);
-            println!("User Name: {}", i.username);
-            println!("User Rights: {:?}", i.rights);
+            info!("====================================");
+            info!("User number: {}", counter);
+            info!("User Name: {}", i.username);
+            info!("User Rights: {:?}", i.rights);
             counter = counter + 1;
-            println!("====================================");
+            info!("====================================");
         }
     }
 }
