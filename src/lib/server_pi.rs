@@ -62,10 +62,9 @@ pub mod server_pi {
                 .output().expect("ls command not found.");
             _user.data_conc.write(&result.stdout)?;
         } else {
-            let mut _args = "-l ".to_string();
-            _args.push_str(&_cmd._args);
             let result = Command::new("ls")
-                .arg(_args)
+                .arg("-l")
+                .arg(&_cmd._args)
                 .output().expect("ls command not found.");
             _user.data_conc.write(&result.stdout)?;
         }
