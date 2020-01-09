@@ -2,8 +2,8 @@ pub mod server_pi {
     use std::net::{Shutdown, TcpStream};
     use crate::ftp::*;
     use crate::defines::defines::*;
-    use std::process::Command;
-    use std::io::Write;
+    use std::process::{Command, Stdio};
+    use std::io::{Write, Read};
     use net2::TcpBuilder;
 
     #[derive(Debug, Default)]
@@ -57,16 +57,32 @@ pub mod server_pi {
         _user.data_conc = TcpBuilder::new_v4().unwrap().reuse_address(true).unwrap().bind("0.0.0.0:20").unwrap().connect(address.as_str()).unwrap();
 
         if _cmd._args == "" {
-            let result = Command::new("ls")
+            let ls = Command::new("ls")
                 .arg("-l")
                 .output().expect("ls command not found.");
-            _user.data_conc.write(&result.stdout)?;
+            let clrfconv = Command::new("awk")
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .arg(r#"{printf "%s\r\n", $0}"#)
+                .spawn().expect("awk command not found.");
+            clrfconv.stdin.unwrap().write_all(&ls.stdout)?;
+            let mut result = String::new();
+            clrfconv.stdout.unwrap().read_to_string(&mut result)?;
+            _user.data_conc.write(result.as_bytes())?;
         } else {
-            let result = Command::new("ls")
+            let ls = Command::new("ls")
                 .arg("-l")
                 .arg(&_cmd._args)
                 .output().expect("ls command not found.");
-            _user.data_conc.write(&result.stdout)?;
+            let clrfconv = Command::new("awk")
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .arg(r#"{printf "%s\r\n", $0}"#)
+                .spawn().expect("awk command not found.");
+            clrfconv.stdin.unwrap().write_all(&ls.stdout)?;
+            let mut result = String::new();
+            clrfconv.stdout.unwrap().read_to_string(&mut result)?;
+            _user.data_conc.write(result.as_bytes())?;
         }
         ftp::send_reply(&mut _stream, &ftp::reply::CLOSING_DATA_CONNECTION.to_string(), "Transfer Complete.")?;
         _user.data_conc.shutdown(Shutdown::Both)?;
