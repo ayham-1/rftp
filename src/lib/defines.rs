@@ -3,13 +3,11 @@ pub mod defines {
     use std::net::{TcpStream};
     use net2::TcpBuilder;
 
-    #[derive(Debug)]
+    #[derive(PartialEq, Debug)]
     pub enum FTPModes { Active, Passive, Both }
     impl Default for FTPModes {
         fn default() -> Self { FTPModes::Both }
     }
-    #[derive(Default, Debug)]
-    pub struct PortRange { pub x: i32, pub y: i32 }
     #[derive(Debug)]
     pub enum FTPTypes { ASCII, BINARY }
     impl Default for FTPTypes {
@@ -20,9 +18,7 @@ pub mod defines {
     pub struct ServerInfo {
         pub mode: FTPModes,
         pub max_connections: i32,
-        pub port_range: PortRange,
         pub allow_anonymous: bool,
-        pub log_file: String,
         pub pwd: String
     }
 

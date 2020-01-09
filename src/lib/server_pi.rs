@@ -1,5 +1,5 @@
 pub mod server_pi {
-    use std::net::{Shutdown, TcpStream};
+    use std::net::{Shutdown, TcpStream, TcpListener};
     use crate::ftp::*;
     use crate::defines::defines::*;
     use std::process::{Command, Stdio};
@@ -30,6 +30,7 @@ pub mod server_pi {
             "SYST" => process_syst_cmd(&mut _stream, &mut _user, &_cmd)?,
             "QUIT" => process_quit_cmd(&mut _stream, &mut _user, &_cmd)?,
             "PORT" => process_port_cmd(&mut _stream, &mut _user, &_cmd)?,
+            "PASV" => process_pasv_cmd(&mut _stream, &mut _user, &_cmd)?,
             "TYPE" => process_type_cmd(&mut _stream, &mut _user, &_cmd)?,
             "LIST" => process_list_cmd(&mut _stream, &mut _user, &_cmd)?,
             "HELP" => process_help_cmd(&mut _stream, &mut _user, &_cmd)?,
@@ -37,6 +38,39 @@ pub mod server_pi {
                 ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
             }
         }
+        return Ok(());
+    }
+    pub fn process_pasv_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+        // set connection mode.
+        _user.connect_mode = FTPModes::Passive;
+        // get available port for connection.
+        let _open_port = ftp::get_available_port().unwrap();
+        let _port_octi0 = _open_port >> 8;
+        let _port_octi1 = _open_port - (_port_octi0 * 256);
+
+        // get IP
+        let _ip = ftp::get_machine_ip();
+
+        // port reply
+        let mut _port: String = String::new();
+        _port.push_str("Passive is the way to go. ");
+        _port.push_str(&_ip);
+        _port.push_str(&_port_octi0.to_string());
+        _port.push_str(",");
+        _port.push_str(&_port_octi1.to_string());
+
+        ftp::send_reply(&mut _stream, &ftp::reply::PASSIVE_MODE.to_string(), _port.as_str())?;
+
+        let mut _address = String::new();
+        _address.push_str("0.0.0.0:");
+        _address.push_str(&_open_port.to_string());
+        let listener =  TcpListener::bind(&_address).unwrap();
+        for stream in listener.incoming() {
+            _user.data_conc = stream.unwrap();
+            break;
+        }
+        
         return Ok(());
     }
 
@@ -49,13 +83,15 @@ pub mod server_pi {
 
     pub fn process_list_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
+        if _user.connect_mode == FTPModes::Active {
         // Open data connection.
-        ftp::send_reply(&mut _stream, &ftp::reply::ABOUT_TO_SEND.to_string(), "Opening ASCII Data connection.")?;
         let address = &mut _user.data_ip;
         address.push_str(":");
         address.push_str(_user.data_port.to_string().as_str());
         _user.data_conc = TcpBuilder::new_v4().unwrap().reuse_address(true).unwrap().bind("0.0.0.0:20").unwrap().connect(address.as_str()).unwrap();
+        } 
 
+        ftp::send_reply(&mut _stream, &ftp::reply::ABOUT_TO_SEND.to_string(), "Opening ASCII Data connection.")?;
         if _cmd._args == "" {
             let ls = Command::new("ls")
                 .arg("-l")
@@ -106,6 +142,8 @@ pub mod server_pi {
 
     pub fn process_port_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
+        // set connect mode.
+        _user.connect_mode = FTPModes::Active;
         // get IP.
         let ipmatch = ftp::PORT_IP.captures(&_cmd._args).unwrap();
         let _ip = str::replace(ipmatch.get(0).map_or("".to_string(), |m| m.as_str().to_string()).as_str(), ",", ".");

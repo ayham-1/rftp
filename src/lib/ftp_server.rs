@@ -17,9 +17,7 @@ pub mod ftp_server {
         info!("Starting Server with the following settings:");
         info!("Allowed Modes: {:?}", _info.mode);
         info!("Max Connections allowed: {}", _info.max_connections);
-        info!("Port Range: {:?}", _info.port_range);
         info!("Anonymous Access: {}", _info.allow_anonymous);
-        info!("Log file: {}", _info.log_file);
         info!("Current Working Directory: {:?}", _info.pwd);
         info!("Started Server!");
 

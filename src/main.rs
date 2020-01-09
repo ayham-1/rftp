@@ -7,6 +7,7 @@ extern crate serde;
 extern crate net2;
 extern crate log;
 extern crate simple_logger;
+extern crate ifaces;
 
 mod lib;
 use crate::lib::*;
@@ -61,26 +62,11 @@ fn main() {
             .value_name("num")
             .help("Maximum number of client connections to accept.")
             .required(false))
-        .arg(Arg::with_name("port-range")
-            .short("p")
-            .long("ports")
-            .takes_value(true)
-            .value_name("x-y")
-            .default_value("2048-10240")
-            .help("Range of unprivilged ports to allow clients to connect to.")
-            .required(false))
         .arg(Arg::with_name("anonymous-access")
             .short("a")
             .long("anonymous")
             .takes_value(false)
             .help("Whether to allow anonymous access or not.")
-            .required(false))
-        .arg(Arg::with_name("log")
-            .short("l")
-            .long("log")
-            .value_name("FILE")
-            .takes_value(true)
-            .help("Location to output log to.")
             .required(false)))
         .subcommand(SubCommand::with_name("client")
             .about("Starts app in client mode.")

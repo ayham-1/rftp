@@ -1,6 +1,6 @@
 pub mod ftp {
     use regex::Regex;
-    use std::net::{TcpStream};
+    use std::net::{TcpStream, TcpListener};
     use std::io::{Write};
 
     lazy_static! {
@@ -12,6 +12,43 @@ pub mod ftp {
         pub static ref PORT_PRT: Regex = Regex::new(r"(\d+),(\d+)$").unwrap();
         pub static ref PORT_OCTI0: Regex = Regex::new(r"^(\d+)").unwrap();
         pub static ref PORT_OCTI1: Regex = Regex::new(r"(\d+)$").unwrap();
+    }
+
+    pub fn get_machine_ip() -> String {
+        // get machine IP.
+        let mut _address = String::new();
+        for iface in 
+            ifaces::Interface::get_all().unwrap()
+                .into_iter() {
+                    if !iface.name.contains("lo") {
+                        if iface.kind == ifaces::Kind::Ipv4 {
+                            _address = iface.addr.unwrap().to_string();
+                        }
+                    }
+                }
+        let _ip = str::replace(_address.as_str(), ".", ",");
+        let mut result = String::new();
+        // rmeove extra numbers from address.
+        for c in _ip.chars() {
+            if c != ':' {
+                result.push_str(&c.to_string());
+            }
+            else {break;}
+        }
+        result.push_str(",");
+        return result;
+    }
+
+    pub fn get_available_port() -> Option<u16> {
+        (8000..9000)
+            .find(|port| port_is_available(*port))
+    }
+
+    pub fn port_is_available(port: u16) -> bool {
+        match TcpListener::bind(("0.0.0.0", port)) {
+            Ok(_) => true,
+            Err(_) => false,
+        }
     }
 
     pub fn gen_reply(_code: &str, _info: &str) -> String {
@@ -64,7 +101,7 @@ pub mod ftp {
         pub const CLOSING: u32                     = 221;
         //pub const DATA_CONNECTION_OPEN: u32        = 225;
         pub const CLOSING_DATA_CONNECTION: u32     = 226;
-        //pub const PASSIVE_MODE: u32                = 227;
+        pub const PASSIVE_MODE: u32                = 227;
         //pub const LONG_PASSIVE_MODE: u32           = 228;
         //pub const EXTENDED_PASSIVE_MODE: u32       = 229;
         pub const LOGGED_IN: u32                   = 230;
