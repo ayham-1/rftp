@@ -36,14 +36,23 @@ pub mod server_pi {
                 "HELP" => process_help_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "NOOP" => process_noop_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "CWD" => process_cwd_cmd(&mut _stream, &mut _user, &_cmd)?,
+                "MODE" => process_mode_cmd(&mut _stream, &mut _user, &_cmd)?,
                 _ => { 
                     ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
                 }
             }
             return Ok(());
     }
+
+    pub fn process_mode_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+            ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Only stream mode is supported.")?;
+            return Ok(());
+    }
+
     pub fn process_cwd_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
+
             // Check if path starts with /
             if _cmd._args.starts_with("/") == true || _user.cwd == "".to_string() {
                 // Set cwd directly.
