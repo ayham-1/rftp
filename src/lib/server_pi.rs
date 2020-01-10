@@ -37,6 +37,7 @@ pub mod server_pi {
                 "NOOP" => process_noop_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "CWD" => process_cwd_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "MODE" => process_mode_cmd(&mut _stream, &mut _user, &_cmd)?,
+                "ACCT" => process_acct_cmd(&mut _stream, &mut _user, &_cmd)?,
                 _ => { 
                     ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
                 }
@@ -44,8 +45,15 @@ pub mod server_pi {
             return Ok(());
     }
 
+    pub fn process_acct_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+            ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Accounts are not Implemented.")?;
+            return Ok(());
+    }
+
     pub fn process_mode_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
+
             ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Only stream mode is supported.")?;
             return Ok(());
     }
