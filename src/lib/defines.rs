@@ -19,7 +19,6 @@ pub mod defines {
         pub mode: FTPModes,
         pub max_connections: i32,
         pub allow_anonymous: bool,
-        pub pwd: String
     }
 
     #[derive(Default, Debug)]

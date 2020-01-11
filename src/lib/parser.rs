@@ -8,11 +8,7 @@ pub mod parser {
             mode: FTPModes::Active,
             max_connections: 10,
             allow_anonymous: false,
-            pwd: "".to_string()
         };
-        let _pwd = std::env::current_dir().unwrap();
-        result.pwd = _pwd.into_os_string().into_string().unwrap();
-        result.pwd.push_str("/");
 
         let _in_mode = _args.value_of("mode").unwrap_or("both");
         let _in_max_connections = _args.value_of("max-connections").unwrap_or("10");

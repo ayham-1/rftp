@@ -18,7 +18,6 @@ pub mod ftp_server {
         info!("Allowed Modes: {:?}", _info.mode);
         info!("Max Connections allowed: {}", _info.max_connections);
         info!("Anonymous Access: {}", _info.allow_anonymous);
-        info!("Current Working Directory: {:?}", _info.pwd);
         info!("Started Server!");
 
         let _linfo = Arc::new(Mutex::new(_info));

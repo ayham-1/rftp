@@ -5,6 +5,8 @@ pub mod server_pi {
     use std::process::{Command, Stdio};
     use std::io::{Write, Read};
     use net2::TcpBuilder;
+    use std::path::Path;
+    use std::env;
 
     #[derive(Debug, Default)]
     pub struct FtpCmd {
@@ -60,24 +62,17 @@ pub mod server_pi {
 
     pub fn process_cwd_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
-
-            // Check if path starts with /
-            if _cmd._args.starts_with("/") == true || _user.cwd == "".to_string() {
-                // Set cwd directly.
-                _user.cwd = _cmd._args.to_owned();
-            } else {
-                // append path to cwd
-                // Check if cwd has trailing slash.
-                if _user.cwd.ends_with("/") {
-                    // Append directly.
-                    _user.cwd.push_str(&_cmd._args);
-                } else {
-                    // Append slash first.
-                    _user.cwd.push_str("/");
-                    _user.cwd.push_str(&_cmd._args);
+            let mut pwd = String::new();
+            pwd.push_str("/var/rftp/");
+            pwd.push_str(&_cmd._args);
+            match env::set_current_dir(Path::new(&pwd)) {
+                Ok(_v) => {
+                    ftp::send_reply(&mut _stream, &ftp::reply::REQUESTED_FILE_ACTION_OK.to_string(), "CWD Command Successful.")?;
+                },
+                Err(_v) => {
+                    ftp::send_reply(&mut _stream, &ftp::reply::FILE_UNAVAILABLE.to_string(), "CWD Command Failed.")?;
                 }
             }
-            ftp::send_reply(&mut _stream, &ftp::reply::REQUESTED_FILE_ACTION_OK.to_string(), "CWD Command Successful.")?;
             return Ok(());
     }
 
@@ -140,10 +135,13 @@ pub mod server_pi {
 
             ftp::send_reply(&mut _stream, &ftp::reply::ABOUT_TO_SEND.to_string(), "Opening ASCII Data connection.")?;
             let mut pwd = String::new();
-            pwd.push_str(&_user.cwd);
+            pwd.push_str("/var/rftp/");
             pwd.push_str(&_cmd._args);
+
             if pwd == "" {
                 let ls = Command::new("ls")
+                    .env_clear()
+                    .env("PATH", "/var/rftp/temp/bin")
                     .arg("-l")
                     .output().expect("ls command not found.");
                 let clrfconv = Command::new("awk")

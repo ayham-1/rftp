@@ -134,7 +134,7 @@ pub mod ftp {
         //pub const NOT_IMPLEMENTED_PARAMETER: u32   = 504;
         pub const NOT_LOGGED_IN: u32               = 530;
         //pub const STORING_NEED_ACCOUNT: u32        = 532;
-        //pub const FILE_UNAVAILABLE: u32            = 550;
+        pub const FILE_UNAVAILABLE: u32            = 550;
         //pub const PAGE_TYPE_UNKNOWN: u32           = 551;
         //pub const EXCEEDED_STORAGE: u32            = 552;
         //pub const BAD_FILENAME: u32                = 553;
