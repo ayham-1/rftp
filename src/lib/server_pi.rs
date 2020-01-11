@@ -62,10 +62,7 @@ pub mod server_pi {
 
     pub fn process_cwd_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
-            let mut pwd = String::new();
-            pwd.push_str("/var/rftp/");
-            pwd.push_str(&_cmd._args);
-            match env::set_current_dir(Path::new(&pwd)) {
+            match env::set_current_dir(Path::new(&ftp::make_path_jailed(&_cmd._args))) {
                 Ok(_v) => {
                     ftp::send_reply(&mut _stream, &ftp::reply::REQUESTED_FILE_ACTION_OK.to_string(), "CWD Command Successful.")?;
                 },
@@ -134,15 +131,11 @@ pub mod server_pi {
             } 
 
             ftp::send_reply(&mut _stream, &ftp::reply::ABOUT_TO_SEND.to_string(), "Opening ASCII Data connection.")?;
-            let mut pwd = String::new();
-            pwd.push_str("/var/rftp/");
-            pwd.push_str(&_cmd._args);
-
-            if pwd == "" {
+            if _cmd._args == "" {
                 let ls = Command::new("ls")
                     .env_clear()
-                    .env("PATH", "/var/rftp/temp/bin")
                     .arg("-l")
+                    .arg(&ftp::make_path_jailed(&_cmd._args))
                     .output().expect("ls command not found.");
                 let clrfconv = Command::new("awk")
                     .stdin(Stdio::piped())
@@ -156,7 +149,7 @@ pub mod server_pi {
             } else {
                 let ls = Command::new("ls")
                     .arg("-l")
-                    .arg(&pwd)
+                    .arg(&ftp::make_path_jailed(&_cmd._args))
                     .output().expect("ls command not found.");
                 let clrfconv = Command::new("awk")
                     .stdin(Stdio::piped())

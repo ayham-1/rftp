@@ -14,14 +14,14 @@ pub mod ftp {
         pub static ref PORT_OCTI1: Regex = Regex::new(r"(\d+)$").unwrap();
     }
 
-    pub fn make_path_jailed(path: &str) -> String {
-        if path.to_string().starts_with("/var/rftp/") {
-            return path.to_string();
+    pub fn make_path_jailed(path: String) -> String {
+        if path.starts_with("/var/rftp/") {
+            return path;
         }
         else {
-            let mut result = String::new();
+            let result = String::new();
             result.push_str("/var/rftp/");
-            result.push_str(path);
+            result.push_str(&path);
             return result;
         }
     }

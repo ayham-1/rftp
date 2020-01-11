@@ -11,6 +11,9 @@ pub mod ftp_server {
     use log::{info, trace, error};
   
     pub fn start_server(_info: ServerInfo) -> Result<(), Box<dyn std::error::Error>> {
+        // Create fake chroot environment.
+        std::fs::create_dir_all("/var/rftp")?;
+
         let db = Arc::new(Mutex::new(db::load_db()?));
 
         let mut _state = ServerStatus::default();
