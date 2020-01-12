@@ -44,10 +44,16 @@ pub mod server_pi {
                 "ACCT" => process_acct_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "STRU" => process_stru_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "STOR" => process_stor_cmd(&mut _stream, &mut _user, &_cmd)?,
+                "ABOR" => process_abor_cmd(&mut _stream, &mut _user, &_cmd)?,
                 _ => { 
                     ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
                 }
             }
+            return Ok(());
+    }
+    pub fn process_abor_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+            ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Serial data transmittion is currently suppported..")?;
             return Ok(());
     }
 
@@ -274,7 +280,7 @@ pub mod server_pi {
 
     pub fn process_quit_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
-            ftp::send_reply(&mut _stream, &ftp::reply::CLOSING.to_string(), "Few, one off the racks.")?;
+            ftp::send_reply(&mut _stream, &ftp::reply::CLOSING.to_string(), "One off the racks.")?;
             return Ok(());
     }
 
