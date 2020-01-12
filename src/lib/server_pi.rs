@@ -53,13 +53,22 @@ pub mod server_pi {
                 "RETR" => process_retr_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "RNFR" => process_rnfr_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "RNTO" => process_rnto_cmd(&mut _stream, &mut _user, &_cmd)?,
+                "STAT" => process_stat_cmd(&mut _stream, &mut _user, &_cmd)?,
                 _ => { 
                     ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
                 }
             }
             return Ok(());
     }
-    
+    pub fn process_stat_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+            let stat = Command::new("stat")
+                .arg(&ftp::make_path_jailed(&_cmd._args))
+                .output().expect("stat command not found.");
+            _stream.write(&stat.stdout)?;
+            ftp::send_reply(&mut _stream, &ftp::reply::SYSTEM.to_string(), "File info sent.")?;
+            return Ok(());
+    }
     pub fn process_rnfr_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
             // Set placeholder name.

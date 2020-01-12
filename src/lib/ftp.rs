@@ -104,7 +104,7 @@ pub mod ftp {
         // 2xx: Positive Completion Reply
         pub const COMMAND_OK: u32                  = 200;
         pub const COMMAND_NOT_IMPLEMENTED: u32     = 202;
-        //pub const SYSTEM: u32                      = 211;
+        pub const SYSTEM: u32                      = 211;
         //pub const DIRECTORY: u32                   = 212;
         //pub const FILE: u32                        = 213;
         //pub const HELP: u32                        = 214;
