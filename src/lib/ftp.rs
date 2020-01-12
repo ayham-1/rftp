@@ -136,7 +136,7 @@ pub mod ftp {
         //pub const HOST_UNAVAILABLE: u32            = 434;
         //pub const REQUEST_FILE_ACTION_IGNORED: u32 = 450;
         //pub const ACTION_ABORTED: u32              = 451;
-        //pub const REQUESTED_ACTION_NOT_TAKEN: u32  = 452;
+        pub const REQUESTED_ACTION_NOT_TAKEN: u32  = 452;
 
         // 5xx: Permanent Negative Completion Reply
         //pub const BAD_COMMAND: u32                 = 500;

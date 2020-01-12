@@ -45,7 +45,7 @@ pub mod ftp_server {
                     match handle_client(&mut stream.unwrap(), _db, _info.lock().unwrap().allow_anonymous) {
                         Ok(_v) => {},
                         Err(_e) => {
-                            error!("Error handling {}", std::thread::current().name().unwrap());
+                            error!("Error handling {}, {}", std::thread::current().name().unwrap(), _e);
                         }
                     }
                     info!("Client#{} got enough of their misery", _lstate.lock().unwrap().active_connections);

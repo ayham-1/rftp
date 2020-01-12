@@ -8,7 +8,7 @@ pub mod defines {
     impl Default for FTPModes {
         fn default() -> Self { FTPModes::Both }
     }
-    #[derive(Debug)]
+    #[derive(PartialEq, Debug)]
     pub enum FTPTypes { ASCII, BINARY }
     impl Default for FTPTypes {
         fn default() -> Self { FTPTypes::ASCII }
