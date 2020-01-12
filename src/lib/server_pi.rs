@@ -7,6 +7,8 @@ pub mod server_pi {
     use net2::TcpBuilder;
     use std::path::Path;
     use std::env;
+    use std::str;
+    use std::fs::OpenOptions;
 
     #[derive(Debug, Default)]
     pub struct FtpCmd {
@@ -40,10 +42,43 @@ pub mod server_pi {
                 "CWD" => process_cwd_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "MODE" => process_mode_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "ACCT" => process_acct_cmd(&mut _stream, &mut _user, &_cmd)?,
+                "STRU" => process_stru_cmd(&mut _stream, &mut _user, &_cmd)?,
+                "STOR" => process_stor_cmd(&mut _stream, &mut _user, &_cmd)?,
                 _ => { 
                     ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
                 }
             }
+            return Ok(());
+    }
+
+    pub fn process_stor_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+            // Open Data connection.
+            if _user.connect_mode == FTPModes::Active {
+                // Open data connection.
+                let address = &mut _user.data_ip;
+                address.push_str(":");
+                address.push_str(_user.data_port.to_string().as_str());
+                _user.data_conc = TcpBuilder::new_v4().unwrap().reuse_address(true).unwrap().bind("0.0.0.0:20").unwrap().connect(address.as_str()).unwrap();
+            }
+
+            ftp::send_reply(&mut _stream, &ftp::reply::ABOUT_TO_SEND.to_string(), "Open data channel for file upload.")?;
+
+            // Read all data.
+            let mut buf = vec![];
+            _user.data_conc.read_to_end(&mut buf)?;
+
+            // Store all data.
+            let mut file = OpenOptions::new().create(true).write(true).append(false).open(&ftp::make_path_jailed(&_cmd._args))?;
+            file.write_all(&buf)?;
+
+            ftp::send_reply(&mut _stream, &ftp::reply::CLOSING_DATA_CONNECTION.to_string(), "Successfully transferred.")?;
+            return Ok(());
+    }
+
+    pub fn process_stru_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+            ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Only file mode is supported.")?;
             return Ok(());
     }
 
@@ -131,36 +166,20 @@ pub mod server_pi {
             } 
 
             ftp::send_reply(&mut _stream, &ftp::reply::ABOUT_TO_SEND.to_string(), "Opening ASCII Data connection.")?;
-            if _cmd._args == "" {
-                let ls = Command::new("ls")
-                    .env_clear()
-                    .arg("-l")
-                    .arg(&ftp::make_path_jailed(&_cmd._args))
-                    .output().expect("ls command not found.");
-                let clrfconv = Command::new("awk")
-                    .stdin(Stdio::piped())
-                    .stdout(Stdio::piped())
-                    .arg(r#"{printf "%s\r\n", $0}"#)
-                    .spawn().expect("awk command not found.");
-                clrfconv.stdin.unwrap().write_all(&ls.stdout)?;
-                let mut result = String::new();
-                clrfconv.stdout.unwrap().read_to_string(&mut result)?;
-                _user.data_conc.write(result.as_bytes())?;
-            } else {
-                let ls = Command::new("ls")
-                    .arg("-l")
-                    .arg(&ftp::make_path_jailed(&_cmd._args))
-                    .output().expect("ls command not found.");
-                let clrfconv = Command::new("awk")
-                    .stdin(Stdio::piped())
-                    .stdout(Stdio::piped())
-                    .arg(r#"{printf "%s\r\n", $0}"#)
-                    .spawn().expect("awk command not found.");
-                clrfconv.stdin.unwrap().write_all(&ls.stdout)?;
-                let mut result = String::new();
-                clrfconv.stdout.unwrap().read_to_string(&mut result)?;
-                _user.data_conc.write(result.as_bytes())?;
-            }
+            let ls = Command::new("ls")
+                .env_clear()
+                .arg("-l")
+                .arg(&ftp::make_path_jailed(&_cmd._args))
+                .output().expect("ls command not found.");
+            let clrfconv = Command::new("awk")
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .arg(r#"{printf "%s\r\n", $0}"#)
+                .spawn().expect("awk command not found.");
+            clrfconv.stdin.unwrap().write_all(&ls.stdout)?;
+            let mut result = String::new();
+            clrfconv.stdout.unwrap().read_to_string(&mut result)?;
+            _user.data_conc.write(result.as_bytes())?;
             ftp::send_reply(&mut _stream, &ftp::reply::CLOSING_DATA_CONNECTION.to_string(), "Transfer Complete.")?;
             _user.data_conc.shutdown(Shutdown::Both)?;
             return Ok(());
