@@ -67,4 +67,9 @@ pub mod defines {
         pub is_command_port_open: bool,
         pub active_connections: i32
     }
+    #[derive(Debug, Default)]
+    pub struct FtpCmd {
+        pub _cmd: String,
+        pub _args: String,
+    }
 }

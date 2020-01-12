@@ -4,3 +4,4 @@ pub mod ftp;
 pub mod ftp_server;
 pub mod parser;
 pub mod server_pi;
+pub mod commands;
