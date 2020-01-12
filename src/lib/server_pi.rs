@@ -45,15 +45,23 @@ pub mod server_pi {
                 "STRU" => process_stru_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "STOR" => process_stor_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "ABOR" => process_abor_cmd(&mut _stream, &mut _user, &_cmd)?,
+                "ALLO" => process_allo_cmd(&mut _stream, &mut _user, &_cmd)?,
                 _ => { 
                     ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
                 }
             }
             return Ok(());
     }
+
+    pub fn process_allo_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+            ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Just send the data already.")?;
+            return Ok(());
+    }
+
     pub fn process_abor_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
-            ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Serial data transmittion is currently suppported..")?;
+            ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Serial data transmittion is currently suppported.")?;
             return Ok(());
     }
 
