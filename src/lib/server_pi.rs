@@ -47,10 +47,18 @@ pub mod server_pi {
                 "ABOR" => process_abor_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "ALLO" => process_allo_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "APPE" => process_appe_cmd(&mut _stream, &mut _user, &_cmd)?,
+                "DELE" => process_dele_cmd(&mut _stream, &mut _user, &_cmd)?,
                 _ => { 
                     ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
                 }
             }
+            return Ok(());
+    }
+
+    pub fn process_dele_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+            std::fs::remove_file(&ftp::make_path_jailed(&_cmd._args))?;
+            ftp::send_reply(&mut _stream, &ftp::reply::REQUESTED_FILE_ACTION_OK.to_string(), "File deleted successfully.")?;
             return Ok(());
     }
 
