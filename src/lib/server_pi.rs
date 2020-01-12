@@ -51,8 +51,32 @@ pub mod server_pi {
                 "NLST" => process_nlst_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "REIN" => process_rein_cmd(&mut _stream, &mut _user, &_cmd)?,
                 "RETR" => process_retr_cmd(&mut _stream, &mut _user, &_cmd)?,
+                "RNFR" => process_rnfr_cmd(&mut _stream, &mut _user, &_cmd)?,
+                "RNTO" => process_rnto_cmd(&mut _stream, &mut _user, &_cmd)?,
                 _ => { 
                     ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
+                }
+            }
+            return Ok(());
+    }
+    
+    pub fn process_rnfr_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+            // Set placeholder name.
+            _user.placeholder1 = _cmd._args.to_owned();
+            ftp::send_reply(&mut _stream, &ftp::reply::REQUEST_FILE_PENDING.to_string(), "Placeholder set.")?;
+            return Ok(());
+    }
+
+    pub fn process_rnto_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+        Result<(), Box<dyn std::error::Error>> {
+            // Rename file.
+            match std::fs::rename(&ftp::make_path_jailed(&_user.placeholder1), &ftp::make_path_jailed(&_cmd._args)) {
+                Ok(_v) => {
+                    ftp::send_reply(&mut _stream, &ftp::reply::REQUESTED_FILE_ACTION_OK.to_string(), "Renamed file.")?;
+                },
+                Err(_e) => {
+                    ftp::send_reply(&mut _stream, &ftp::reply::REQUESTED_ACTION_NOT_TAKEN.to_string(), "Faied to rename file.")?;
                 }
             }
             return Ok(());
@@ -69,7 +93,7 @@ pub mod server_pi {
                     reuse_address(true).unwrap().bind("0.0.0.0:20").unwrap().connect(address.as_str()).unwrap();
             } 
 
-            ftp::send_reply(&mut _stream, &ftp::reply::ABOUT_TO_SEND.to_string(), "Opening ASCII Data connection.")?;
+            ftp::send_reply(&mut _stream, &ftp::reply::ABOUT_TO_SEND.to_string(), "Opening Data connection.")?;
 
             // Read all data.
             if _user.data_type == FTPTypes::ASCII {

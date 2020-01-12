@@ -37,12 +37,12 @@ pub mod defines {
         pub data_ip: String,
         pub data_port: i32,
         pub data_conc: TcpStream,
-        pub cwd: String,
         pub is_data_up: bool,
         pub is_user_logged: bool, 
         pub is_closing: bool,
         pub is_requesting_login: bool,
         pub is_anon: bool,
+        pub placeholder1: String,
     }
     impl Default for ClientConnection {
         fn default() -> Self {
@@ -53,12 +53,12 @@ pub mod defines {
                 data_type: FTPTypes::default(),
                 data_ip: String::default(),
                 data_port: i32::default(),
-                cwd: "".to_string(),
                 is_data_up: bool::default(),
                 is_user_logged: bool::default(),
                 is_closing: bool::default(),
                 is_requesting_login: bool::default(),
                 is_anon: bool::default(),
+                placeholder1: "".to_string(),
             }
         } 
     }

@@ -126,7 +126,7 @@ pub mod ftp {
         // 3xx: Positive intermediate Reply
         pub const NEED_PASSWORD: u32               = 331;
         //pub const LOGIN_NEED_ACCOUNT: u32          = 332;
-        //pub const REQUEST_FILE_PENDING: u32        = 350;
+        pub const REQUEST_FILE_PENDING: u32        = 350;
 
         // 4xx: Transient Negative Completion Reply
         //pub const NOT_AVAILABLE: u32               = 421;
