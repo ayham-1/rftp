@@ -5,6 +5,7 @@ use crate::db::*;
 use crate::defines::defines::*;
 use net2::TcpBuilder;
 use std::process::{Command, Stdio};
+use std::path::Path;
 
 pub fn cmd(mut _stream: &mut TcpStream, 
     mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
@@ -28,14 +29,23 @@ Result<(), Box<dyn std::error::Error>> {
             .connect(address.as_str()).unwrap();
     } 
 
-    ftp::send_reply(&mut _stream, 
-        &ftp::reply::ABOUT_TO_SEND.to_string(), 
-        "Opening Data connection.")?;
+    // Check for file existing.
+    let loc = &ftp::make_path_jailed(&_cmd._args);
+    if !Path::new(loc).exists() {
+        ftp::send_reply(&mut _stream, 
+            &ftp::reply::REQUESTED_ACTION_NOT_TAKEN
+            .to_string(), "Could not find file.")?;
+        return Ok(());
+    } else {
+        ftp::send_reply(&mut _stream, 
+            &ftp::reply::ABOUT_TO_SEND.to_string(), 
+            "Opening Data connection.")?;
+    }
 
     // Read all data.
     if _user.data_type == FTPTypes::ASCII {
         let mut buf = String::new();
-        match std::fs::File::open(&ftp::make_path_jailed(&_cmd._args)) {
+        match std::fs::File::open(loc) {
             Ok(mut _v) => {
                 match _v.read_to_string(&mut buf) {
                     Ok(_v) => {},
@@ -43,7 +53,7 @@ Result<(), Box<dyn std::error::Error>> {
                         ftp::send_reply(&mut _stream, 
                             &ftp::reply::REQUESTED_ACTION_NOT_TAKEN
                             .to_string(), "Could not read file.")?;
-                        return Err(Box::new(_e));
+                        return Ok(());
                     }
                 }
             },
@@ -51,7 +61,7 @@ Result<(), Box<dyn std::error::Error>> {
                 ftp::send_reply(&mut _stream, 
                     &ftp::reply::REQUESTED_ACTION_NOT_TAKEN.to_string(),
                     "Could not open file.")?;
-                return Err(Box::new(_e));
+                return Ok(());
             }
         }
         // Apply CLRF
@@ -69,7 +79,7 @@ Result<(), Box<dyn std::error::Error>> {
     }
     else if _user.data_type == FTPTypes::BINARY {
         let mut buf = vec![];
-        match std::fs::File::open(&ftp::make_path_jailed(&_cmd._args)) {
+        match std::fs::File::open(loc) {
             Ok(mut _v) => {
                 match _v.read_to_end(&mut buf) {
                     Ok(_v) => {},
@@ -77,7 +87,7 @@ Result<(), Box<dyn std::error::Error>> {
                         ftp::send_reply(&mut _stream, 
                             &ftp::reply::REQUESTED_ACTION_NOT_TAKEN
                             .to_string(), "Could not read file.")?;
-                        return Err(Box::new(_e));
+                        return Ok(());
                     }
                 }
             },
@@ -85,7 +95,7 @@ Result<(), Box<dyn std::error::Error>> {
                 ftp::send_reply(&mut _stream, 
                     &ftp::reply::REQUESTED_ACTION_NOT_TAKEN.to_string(),
                     "Could not open file.")?;
-                return Err(Box::new(_e));
+                return Ok(());
             }
         }
         _user.data_conc.write(&buf)?;
@@ -97,5 +107,3 @@ Result<(), Box<dyn std::error::Error>> {
     _user.data_conc.shutdown(Shutdown::Both)?;
     return Ok(());
 }
-
-
