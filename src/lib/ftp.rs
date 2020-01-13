@@ -148,7 +148,7 @@ pub mod ftp {
         pub const REQUEST_FILE_PENDING: u32        = 350;
 
         // 4xx: Transient Negative Completion Reply
-        //pub const NOT_AVAILABLE: u32               = 421;
+        pub const NOT_AVAILABLE: u32               = 421;
         //pub const CANNOT_OPEN_DATA_CONNECTION: u32 = 425;
         //pub const TRANSER_ABORTED: u32             = 426;
         //pub const INVALID_CREDENTIALS: u32         = 430;

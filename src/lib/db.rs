@@ -8,7 +8,7 @@ pub mod db {
     use std::error::Error;
     use log::{info, warn, trace};
 
-    #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
+    #[derive(PartialEq, Debug, Serialize, Deserialize, Copy, Clone)]
     pub enum Rights {
         List, Read, All,
         Nothing
