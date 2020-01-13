@@ -21,11 +21,15 @@ pub mod ftp {
         pub static ref PORT_OCTI1: Regex = 
             Regex::new(r"(\d+)$").unwrap();
     }
-    
+    pub fn check_path_jailness(path: &str) -> bool {
+        return path.to_string().chars().count() > 
+            "/var/rftp".to_string().chars().count();
+    }   
+
     pub fn check_current_path_jailness() -> bool {
         return std::env::current_dir().unwrap().into_os_string()
-                .into_string().unwrap().chars().count() > 
-                    "/var/rftp".to_string().chars().count();
+            .into_string().unwrap().chars().count() > 
+            "/var/rftp".to_string().chars().count();
     }
 
     pub fn make_path_jailed(path: &str) -> String {

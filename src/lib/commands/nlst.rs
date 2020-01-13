@@ -33,7 +33,7 @@ Result<(), Box<dyn std::error::Error>> {
     let mut loc = std::env::current_dir().unwrap();
     if _cmd._args != "" {
         loc = loc.join(std::path::Path::new(&_cmd._args));
-        if !ftp::check_current_path_jailness() {
+        if !ftp::check_path_jailness(&loc.to_owned().into_os_string().into_string().unwrap()) {
             std::env::set_current_dir("/var/rftp/")?;
             loc = std::env::current_dir().unwrap();
         }
