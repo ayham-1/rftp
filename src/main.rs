@@ -8,6 +8,7 @@ extern crate net2;
 extern crate log;
 extern crate simple_logger;
 extern crate ifaces;
+extern crate dirs;
 
 mod lib;
 use crate::lib::*;

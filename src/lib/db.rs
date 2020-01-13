@@ -7,15 +7,16 @@ pub mod db {
     use std::error::Error;
     use log::{info, warn, trace};
     use crate::defines::defines::*;
+    use std::path::Path;
 
     pub fn save_db(_db: &DB) -> Result<(), std::io::Error> {
         trace!("Saving DB...");
 
         let serialized = serde_json::to_string(&_db).unwrap();
 
-        std::fs::remove_file("../.rftp.db")?;
+        std::fs::remove_file(dirs::home_dir().unwrap().join(Path::new(".rftp.db")))?;
         let mut file = OpenOptions::new().create(true).write(true)
-            .append(false).open("../.rftp.db")?;
+            .append(false).open(dirs::home_dir().unwrap().join(Path::new(".rftp.db")))?;
         Ok(file.write_all(serialized.as_bytes())?)
     }
 
@@ -23,7 +24,7 @@ pub mod db {
         trace!("Loading DB...");
 
         let mut file = OpenOptions::new().create(true).read(true)
-            .write(true).open("../.rftp.db")?;
+            .write(true).open(dirs::home_dir().unwrap().join(Path::new(".rftp.db")))?;
 
         let mut contents: String = "".to_string();
         file.read_to_string(&mut contents)?;
@@ -38,7 +39,7 @@ pub mod db {
         warn!("Press Ctrl-c to abort.");
         thread::sleep(Duration::from_secs(5));
 
-        std::fs::remove_file("../.rftp.db")?;
+        std::fs::remove_file(dirs::home_dir().unwrap().join(Path::new(".rftp.db")))?;
 
         info!("Successfully cleaned user database.");
         Ok(())
