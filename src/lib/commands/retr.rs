@@ -5,7 +5,8 @@ use crate::defines::defines::*;
 use net2::TcpBuilder;
 use std::process::{Command, Stdio};
 
-pub fn cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+pub fn cmd(mut _stream: &mut TcpStream, 
+    mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
 Result<(), Box<dyn std::error::Error>> {
     if _user.connect_mode == FTPModes::Active {
         // Open data connection.
@@ -13,10 +14,13 @@ Result<(), Box<dyn std::error::Error>> {
         address.push_str(":");
         address.push_str(_user.data_port.to_string().as_str());
         _user.data_conc = TcpBuilder::new_v4().unwrap().
-            reuse_address(true).unwrap().bind("0.0.0.0:20").unwrap().connect(address.as_str()).unwrap();
+            reuse_address(true).unwrap().bind("0.0.0.0:20").unwrap()
+            .connect(address.as_str()).unwrap();
     } 
 
-    ftp::send_reply(&mut _stream, &ftp::reply::ABOUT_TO_SEND.to_string(), "Opening Data connection.")?;
+    ftp::send_reply(&mut _stream, 
+        &ftp::reply::ABOUT_TO_SEND.to_string(), 
+        "Opening Data connection.")?;
 
     // Read all data.
     if _user.data_type == FTPTypes::ASCII {
@@ -26,13 +30,17 @@ Result<(), Box<dyn std::error::Error>> {
                 match _v.read_to_string(&mut buf) {
                     Ok(_v) => {},
                     Err(_e) => {
-                        ftp::send_reply(&mut _stream, &ftp::reply::REQUESTED_ACTION_NOT_TAKEN.to_string(), "Could not read file.")?;
+                        ftp::send_reply(&mut _stream, 
+                            &ftp::reply::REQUESTED_ACTION_NOT_TAKEN
+                            .to_string(), "Could not read file.")?;
                         return Err(Box::new(_e));
                     }
                 }
             },
             Err(_e) => {
-                ftp::send_reply(&mut _stream, &ftp::reply::REQUESTED_ACTION_NOT_TAKEN.to_string(), "Could not open file.")?;
+                ftp::send_reply(&mut _stream, 
+                    &ftp::reply::REQUESTED_ACTION_NOT_TAKEN.to_string(),
+                    "Could not open file.")?;
                 return Err(Box::new(_e));
             }
         }
@@ -56,20 +64,26 @@ Result<(), Box<dyn std::error::Error>> {
                 match _v.read_to_end(&mut buf) {
                     Ok(_v) => {},
                     Err(_e) => {
-                        ftp::send_reply(&mut _stream, &ftp::reply::REQUESTED_ACTION_NOT_TAKEN.to_string(), "Could not read file.")?;
+                        ftp::send_reply(&mut _stream, 
+                            &ftp::reply::REQUESTED_ACTION_NOT_TAKEN
+                            .to_string(), "Could not read file.")?;
                         return Err(Box::new(_e));
                     }
                 }
             },
             Err(_e) => {
-                ftp::send_reply(&mut _stream, &ftp::reply::REQUESTED_ACTION_NOT_TAKEN.to_string(), "Could not open file.")?;
+                ftp::send_reply(&mut _stream, 
+                    &ftp::reply::REQUESTED_ACTION_NOT_TAKEN.to_string(),
+                    "Could not open file.")?;
                 return Err(Box::new(_e));
             }
         }
         _user.data_conc.write(&buf)?;
     } 
 
-    ftp::send_reply(&mut _stream, &ftp::reply::CLOSING_DATA_CONNECTION.to_string(), "Successfully transferred.")?;
+    ftp::send_reply(&mut _stream, 
+        &ftp::reply::CLOSING_DATA_CONNECTION.to_string(), 
+        "Successfully transferred.")?;
     _user.data_conc.shutdown(Shutdown::Both)?;
     return Ok(());
 }

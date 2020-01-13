@@ -14,12 +14,14 @@ use crate::lib::*;
 
 use crate::defines::defines::{ClientInfo};
 use clap::{Arg, App, SubCommand};
-use crate::parser::parser::{parse_server_info, parse_client_info, parse_dbcmd_info};
+use crate::parser::parser::{parse_server_info, parse_client_info, 
+    parse_dbcmd_info};
 use crate::ftp_server::ftp_server::{start_server};
 use crate::db::db::apply_dbcmd;
 use log::{trace, error};
+use std::error::Error;
 
-fn run(_args: clap::ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
+fn run(_args: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     match _args.subcommand() {
         ("server", Some(m)) => {
             let _info = parse_server_info(m); 
@@ -52,7 +54,8 @@ fn main() {
             .takes_value(true)
             .value_name("active/passive/both/1/2/3")
             .default_value("both")
-            .help("Whether to accept passive, active or both connections.")
+            .help("Whether to accept passive, active or both
+                connections.")
             .required(true))
         .arg(Arg::with_name("max-connections")
             .short("c")

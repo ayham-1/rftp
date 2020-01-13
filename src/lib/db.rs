@@ -5,6 +5,7 @@ pub mod db {
     use std::io::Read;
     use std::time::Duration;
     use std::thread;
+    use std::error::Error;
     use log::{info, warn, trace};
 
     #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
@@ -29,7 +30,8 @@ pub mod db {
         pub user: Vec<User>,
     }
 
-    pub fn add_user(_db: &mut DB, _username: String, _password: String, _rights: Rights) {
+    pub fn add_user(_db: &mut DB, _username: String, _password: String,
+        _rights: Rights) {
         let mut user: User = User::default();
         user.username = _username;
         user.password = _password;
@@ -56,14 +58,16 @@ pub mod db {
         let serialized = serde_json::to_string(&_db).unwrap();
 
         std::fs::remove_file("../.rftp.db")?;
-        let mut file = OpenOptions::new().create(true).write(true).append(false).open("../.rftp.db")?;
+        let mut file = OpenOptions::new().create(true).write(true)
+            .append(false).open("../.rftp.db")?;
         Ok(file.write_all(serialized.as_bytes())?)
     }
 
     pub fn load_db() -> Result<DB, Box<dyn std::error::Error>> {
         trace!("Loading DB...");
 
-        let mut file = OpenOptions::new().create(true).read(true).write(true).open("../.rftp.db")?;
+        let mut file = OpenOptions::new().create(true).read(true)
+            .write(true).open("../.rftp.db")?;
 
         let mut contents: String = "".to_string();
         file.read_to_string(&mut contents)?;
@@ -100,7 +104,7 @@ pub mod db {
         pub rights: Rights
     }
     
-    pub fn apply_dbcmd(_cmd: &DBCmd) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn apply_dbcmd(_cmd: &DBCmd) -> Result<(), Box<dyn Error>> {
         let mut _db: DB = DB::default();
         trace!("Currently processing command: {:?}", _cmd.job);
         _db = load_db()?;
@@ -121,7 +125,8 @@ pub mod db {
         info!("Password: {}", _cmd.pass);
         info!("Rights: {:?}", _cmd.rights);
 
-        add_user(_db, (&_cmd.user).to_string(), (&_cmd.pass).to_string(), _cmd.rights);
+        add_user(_db, (&_cmd.user).to_string(), 
+            (&_cmd.pass).to_string(), _cmd.rights);
     }
 
     pub fn db_rm(_db: &mut DB,_cmd: &DBCmd) {

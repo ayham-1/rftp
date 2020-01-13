@@ -13,7 +13,8 @@ pub mod server_pi {
         return result;
     }
 
-    pub fn apply_cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+    pub fn apply_cmd(mut _stream: &mut TcpStream, 
+        mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
         Result<(), Box<dyn std::error::Error>> {
             let cmd = _cmd._cmd.as_str();
             match cmd {
@@ -44,7 +45,9 @@ pub mod server_pi {
                 "STAT" => stat::cmd(&mut _stream, &mut _user, &_cmd)?,
                 "SITE" => site::cmd(&mut _stream, &mut _user, &_cmd)?,
                 _ => { 
-                    ftp::send_reply(&mut _stream, &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(), "Command Not Implemented.")?;
+                    ftp::send_reply(&mut _stream,
+                        &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(),
+                        "Command Not Implemented.")?;
                 }
             }
             return Ok(());

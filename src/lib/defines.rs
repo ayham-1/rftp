@@ -48,7 +48,8 @@ pub mod defines {
     impl Default for ClientConnection {
         fn default() -> Self {
             ClientConnection {
-                data_conc: TcpBuilder::new_v4().unwrap().to_tcp_stream().unwrap(),
+                data_conc: TcpBuilder::new_v4().unwrap()
+                    .to_tcp_stream().unwrap(),
                 user: db::User::default(),
                 cwd: String::default(),
                 connect_mode: FTPModes::default(),

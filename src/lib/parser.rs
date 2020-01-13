@@ -11,7 +11,8 @@ pub mod parser {
         };
 
         let _in_mode = _args.value_of("mode").unwrap_or("both");
-        let _in_max_connections = _args.value_of("max-connections").unwrap_or("10");
+        let _in_max_connections = _args.value_of("max-connections")
+            .unwrap_or("10");
         let mut _in_anonymous_access_support: bool = false;
         if _args.is_present("anonymous-access") {
             _in_anonymous_access_support = true;
@@ -26,7 +27,8 @@ pub mod parser {
             panic!("Unrecognized argument given to --mode");
         }
 
-        result.max_connections = _in_max_connections.parse::<i32>().unwrap();
+        result.max_connections = _in_max_connections.parse::<i32>()
+            .unwrap();
 
         let mut _xturn: bool = true;
 
@@ -43,7 +45,8 @@ pub mod parser {
             password: "toor".to_string()
         };
 
-        let _in_mode = _args.value_of("connect-mode").unwrap_or("both");
+        let _in_mode = _args.value_of("connect-mode")
+            .unwrap_or("both");
 
         if _in_mode == "active" || _in_mode == "1" {
             result.connect_mode = FTPModes::Active;
@@ -55,9 +58,12 @@ pub mod parser {
             panic!("Unrecognized argument given to --mode");
         }
 
-        result.server_name = _args.value_of("server-name").unwrap_or("localhost").to_string();
-        result.username = _args.value_of("username").unwrap_or("root").to_string();
-        result.password = _args.value_of("password").unwrap_or("toor").to_string();
+        result.server_name = _args.value_of("server-name")
+            .unwrap_or("localhost").to_string();
+        result.username = _args.value_of("username")
+            .unwrap_or("root").to_string();
+        result.password = _args.value_of("password")
+            .unwrap_or("toor").to_string();
 
         return result;
     }
@@ -67,25 +73,33 @@ pub mod parser {
         
         if _args.is_present("add") {
             result.job = db::CmdJob::Add;
-            result.user = _args.subcommand_matches("add").unwrap().value_of("name").unwrap().to_string();
-            result.pass = _args.subcommand_matches("add").unwrap().value_of("pass").unwrap().to_string();
-            let _in_rights = _args.subcommand_matches("add").unwrap().value_of("access-rights").unwrap().to_string();
-            if _in_rights == String::from("list") || _in_rights == String::from("0"){
+            result.user = _args.subcommand_matches("add").unwrap()
+                .value_of("name").unwrap().to_string();
+            result.pass = _args.subcommand_matches("add").unwrap()
+                .value_of("pass").unwrap().to_string();
+            let _in_rights = _args.subcommand_matches("add").unwrap()
+                .value_of("access-rights").unwrap().to_string();
+            if _in_rights == String::from("list") || 
+                _in_rights == String::from("0"){
                 result.rights = db::Rights::List;
             }
-            if _in_rights == String::from("read") || _in_rights == String::from("1"){
+            if _in_rights == String::from("read") || 
+                _in_rights == String::from("1"){
                 result.rights = db::Rights::Read;
             }
-            if _in_rights == String::from("all") || _in_rights == String::from("2"){
+            if _in_rights == String::from("all") || 
+                _in_rights == String::from("2"){
                 result.rights = db::Rights::All;
             }
-            if _in_rights == String::from("none") || _in_rights == String::from("3"){
+            if _in_rights == String::from("none") || 
+                _in_rights == String::from("3"){
                 result.rights = db::Rights::Nothing;
             }
             return result;
         } else if _args.is_present("rm") {
             result.job = db::CmdJob::Remove;
-            result.user = _args.subcommand_matches("add").unwrap().value_of("name").unwrap().to_string();
+            result.user = _args.subcommand_matches("add")
+                .unwrap().value_of("name").unwrap().to_string();
             return result;
         } else if _args.is_present("list") {
             result.job = db::CmdJob::List;

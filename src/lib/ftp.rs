@@ -5,14 +5,22 @@ pub mod ftp {
     use std::path::Path;
 
     lazy_static! {
-        pub static ref REPLY_CODE: Regex = Regex::new(r"\d\d\d\s").unwrap();
-        pub static ref CMD_TYPE: Regex = Regex::new(r"\w{3,4}\s").unwrap();
-        pub static ref CMD_ARGS: Regex = Regex::new(r"\s.+").unwrap();
-        pub static ref REMOVE_SPACES: Regex = Regex::new(r"[^\s*].*[^\s*]").unwrap();
-        pub static ref PORT_IP: Regex = Regex::new(r"(\d+),(\d+),(\d+),(\d+)").unwrap();
-        pub static ref PORT_PRT: Regex = Regex::new(r"(\d+),(\d+)$").unwrap();
-        pub static ref PORT_OCTI0: Regex = Regex::new(r"^(\d+)").unwrap();
-        pub static ref PORT_OCTI1: Regex = Regex::new(r"(\d+)$").unwrap();
+        pub static ref REPLY_CODE: Regex = 
+            Regex::new(r"\d\d\d\s").unwrap();
+        pub static ref CMD_TYPE: Regex = 
+            Regex::new(r"\w{3,4}\s").unwrap();
+        pub static ref CMD_ARGS: Regex = 
+            Regex::new(r"\s.+").unwrap();
+        pub static ref REMOVE_SPACES: Regex = 
+            Regex::new(r"[^\s*].*[^\s*]").unwrap();
+        pub static ref PORT_IP: Regex = 
+            Regex::new(r"(\d+),(\d+),(\d+),(\d+)").unwrap();
+        pub static ref PORT_PRT: Regex = 
+            Regex::new(r"(\d+),(\d+)$").unwrap();
+        pub static ref PORT_OCTI0: Regex = 
+            Regex::new(r"^(\d+)").unwrap();
+        pub static ref PORT_OCTI1: Regex = 
+            Regex::new(r"(\d+)$").unwrap();
     }
 
     pub fn make_path_jailed(path: &str) -> String {
@@ -23,8 +31,11 @@ pub mod ftp {
             let mut result = String::new();
             result.push_str("/var/rftp/");
             result.push_str(path);
-            if std::env::current_dir().unwrap().into_os_string().into_string().unwrap().chars().count() < "/var/rftp/".to_string().chars().count() {
-                std::env::set_current_dir(Path::new("/var/rftp")).unwrap();
+            if std::env::current_dir().unwrap().into_os_string()
+                .into_string().unwrap().chars().count() < 
+                    "/var/rftp/".to_string().chars().count() {
+                std::env::set_current_dir(Path::new("/var/rftp"))
+                    .unwrap();
                 return "/var/rftp/".to_string();
             }
             return result;
@@ -72,7 +83,8 @@ pub mod ftp {
         return String::from(_code.to_string() + " " + _info + "\r\n");
     }
 
-    pub fn send_reply(_stream: &mut TcpStream, _code: &str, _info: &str) -> Result<(), std::io::Error> {
+    pub fn send_reply(_stream: &mut TcpStream, _code: &str,
+        _info: &str) -> Result<(), std::io::Error> {
         _stream.write(gen_reply(_code, _info).as_bytes())?; 
         Ok(())
     }
@@ -83,7 +95,8 @@ pub mod ftp {
 
     pub fn get_command(_recieved: &String) -> String {
         let cmd = CMD_TYPE.captures(&_recieved).unwrap();
-        let mut cmdstr = cmd.get(0).map_or("".to_string(), |m| m.as_str().to_string());
+        let mut cmdstr = cmd.get(0).map_or("".to_string(),
+        |m| m.as_str().to_string());
         remove_whitespace(&mut cmdstr);
         return cmdstr;
     }
@@ -93,7 +106,8 @@ pub mod ftp {
         if args.is_none() == true {
             return "".to_string();
         }
-        let mut argsstr = args.unwrap().get(0).map_or("".to_string(), |m| m.as_str().to_string());
+        let mut argsstr = args.unwrap().get(0).map_or("".to_string(),
+        |m| m.as_str().to_string());
         remove_whitespace(&mut argsstr);
         return argsstr;
     }

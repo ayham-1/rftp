@@ -5,7 +5,8 @@ use crate::defines::defines::*;
 use net2::TcpBuilder;
 use std::process::{Command, Stdio};
 
-pub fn cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+pub fn cmd(mut _stream: &mut TcpStream, 
+    mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
 Result<(), Box<dyn std::error::Error>> {
     if _user.connect_mode == FTPModes::Active {
         // Open data connection.
@@ -13,10 +14,13 @@ Result<(), Box<dyn std::error::Error>> {
         address.push_str(":");
         address.push_str(_user.data_port.to_string().as_str());
         _user.data_conc = TcpBuilder::new_v4().unwrap().
-            reuse_address(true).unwrap().bind("0.0.0.0:20").unwrap().connect(address.as_str()).unwrap();
+            reuse_address(true).unwrap().bind("0.0.0.0:20").unwrap()
+            .connect(address.as_str()).unwrap();
     } 
 
-    ftp::send_reply(&mut _stream, &ftp::reply::ABOUT_TO_SEND.to_string(), "Opening ASCII Data connection.")?;
+    ftp::send_reply(&mut _stream, 
+        &ftp::reply::ABOUT_TO_SEND.to_string(), 
+        "Opening ASCII Data connection.")?;
     let ls = Command::new("ls")
         .env_clear()
         .arg(&ftp::make_path_jailed(&_cmd._args))
@@ -31,7 +35,9 @@ Result<(), Box<dyn std::error::Error>> {
     let mut result = String::new();
     clrfconv.stdout.unwrap().read_to_string(&mut result)?;
     _user.data_conc.write(result.as_bytes())?;
-    ftp::send_reply(&mut _stream, &ftp::reply::CLOSING_DATA_CONNECTION.to_string(), "Transfer Complete.")?;
+    ftp::send_reply(&mut _stream, 
+        &ftp::reply::CLOSING_DATA_CONNECTION.to_string(), 
+        "Transfer Complete.")?;
     _user.data_conc.shutdown(Shutdown::Both)?;
     return Ok(());
 }

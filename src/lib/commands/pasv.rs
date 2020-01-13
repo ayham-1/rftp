@@ -2,7 +2,8 @@ use std::net::{TcpStream, TcpListener};
 use crate::ftp::*;
 use crate::defines::defines::*;
 
-pub fn cmd(mut _stream: &mut TcpStream, mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
+pub fn cmd(mut _stream: &mut TcpStream, 
+    mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
 Result<(), Box<dyn std::error::Error>> {
     // set connection mode.
     _user.connect_mode = FTPModes::Passive;
@@ -22,7 +23,9 @@ Result<(), Box<dyn std::error::Error>> {
     _port.push_str(",");
     _port.push_str(&_port_octi1.to_string());
 
-    ftp::send_reply(&mut _stream, &ftp::reply::PASSIVE_MODE.to_string(), _port.as_str())?;
+    ftp::send_reply(&mut _stream, 
+        &ftp::reply::PASSIVE_MODE.to_string(), 
+        _port.as_str())?;
 
     let mut _address = String::new();
     _address.push_str("0.0.0.0:");
