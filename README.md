@@ -3,27 +3,27 @@ A simple CLI ftp client/server for a school project written in rust.
 
 ## Features
 
-### Server
+### Server:
 * Users can have seperate permissions, (List, Read, All, Nothing)
 * Server can run in passive, active or both modes of connection.
 * Server can handle multiple users.
 
 ## Getting Started
 
-### Consumers
+### Consumers:
 Consumers should look at the releases page for binaries.
 
-### Developers
+### Developers:
 
-#### Prerequisites
+#### Prerequisites:
 Rust can be installed from [here](https://www.rust-lang.org/tools/install).
 
-#### Building
+#### Building:
 ```sh
 cargo build
 ```
 
-##### Running
+##### Running:
 
 For commandline help:
 ```sh
@@ -41,8 +41,8 @@ To run the database manager
 sudo ./target/debug/rftp db
 ```
 
-## Built With.
+## Built With:
 * Rust: [Language](https://www.rust-lang.org/tools/install)
 
-## Authors
+## Authors:
 * **altffour** - *Initial work* - [realaltffour](https://github.com/realaltffour)
