@@ -10,7 +10,7 @@ Result<(), Box<dyn std::error::Error>> {
     // Check for permissions.
     if _user.user.rights == Rights::Nothing {
         ftp::send_reply(&mut _stream, 
-            &ftp::reply::NOT_AVAILABLE.to_string(), 
+            &ftp::reply::REQUESTED_ACTION_NOT_TAKEN.to_string(), 
             "You don't have permission to do that.")?;
         return Ok(());
     }
