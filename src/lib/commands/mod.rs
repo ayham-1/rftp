@@ -25,3 +25,4 @@ pub mod stru;
 pub mod syst;
 pub mod r#type;
 pub mod user;
+pub mod cdup;

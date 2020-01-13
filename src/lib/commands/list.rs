@@ -30,11 +30,20 @@ Result<(), Box<dyn std::error::Error>> {
     ftp::send_reply(&mut _stream, 
         &ftp::reply::ABOUT_TO_SEND.to_string(), 
         "Opening ASCII Data connection.")?;
+
+    let mut loc = std::env::current_dir().unwrap();
+    if _cmd._args != "" {
+        loc = loc.join(std::path::Path::new(&_cmd._args));
+        if !ftp::check_current_path_jailness() {
+            std::env::set_current_dir("/var/rftp/")?;
+            loc = std::env::current_dir().unwrap();
+        }
+    }
+
     let ls = Command::new("ls")
         .env_clear()
         .arg("-l")
-        .arg(&ftp::make_path_jailed(
-                &(_user.cwd.to_owned() + &_cmd._args)))
+        .arg(loc.into_os_string().into_string().unwrap())
         .output().expect("ls command not found.");
     let clrfconv = Command::new("awk")
         .stdin(Stdio::piped())

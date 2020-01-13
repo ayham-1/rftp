@@ -2,7 +2,6 @@ pub mod ftp {
     use regex::Regex;
     use std::net::{TcpStream, TcpListener};
     use std::io::{Write};
-    use std::path::Path;
 
     lazy_static! {
         pub static ref REPLY_CODE: Regex = 
@@ -22,6 +21,12 @@ pub mod ftp {
         pub static ref PORT_OCTI1: Regex = 
             Regex::new(r"(\d+)$").unwrap();
     }
+    
+    pub fn check_current_path_jailness() -> bool {
+        return std::env::current_dir().unwrap().into_os_string()
+                .into_string().unwrap().chars().count() > 
+                    "/var/rftp".to_string().chars().count();
+    }
 
     pub fn make_path_jailed(path: &str) -> String {
         if path.to_string().starts_with("/var/rftp/") {
@@ -31,13 +36,6 @@ pub mod ftp {
             let mut result = String::new();
             result.push_str("/var/rftp/");
             result.push_str(path);
-            if std::env::current_dir().unwrap().into_os_string()
-                .into_string().unwrap().chars().count() < 
-                    "/var/rftp/".to_string().chars().count() {
-                std::env::set_current_dir(Path::new("/var/rftp"))
-                    .unwrap();
-                return "/var/rftp/".to_string();
-            }
             return result;
         }
     }

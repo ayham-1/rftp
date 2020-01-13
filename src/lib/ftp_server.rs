@@ -68,6 +68,9 @@ pub mod ftp_server {
     fn handle_client(mut _stream: &mut TcpStream, 
         _db: std::sync::Arc<Mutex<db::DB>>, anon: bool) ->
         Result<(), Box<dyn std::error::Error>> {
+        // Chroot into fake jail.
+        std::env::set_current_dir("/var/rftp/")?;
+
         let mut client: ClientConnection = ClientConnection::default();
         client.is_closing = false;
 

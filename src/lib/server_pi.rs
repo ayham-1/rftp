@@ -44,6 +44,7 @@ pub mod server_pi {
                 "RNTO" => rnto::cmd(&mut _stream, &mut _user, &_cmd)?,
                 "STAT" => stat::cmd(&mut _stream, &mut _user, &_cmd)?,
                 "SITE" => site::cmd(&mut _stream, &mut _user, &_cmd)?,
+                "CDUP" => cdup::cmd(&mut _stream, &mut _user, &_cmd)?,
                 _ => { 
                     ftp::send_reply(&mut _stream,
                         &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(),
