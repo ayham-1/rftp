@@ -1,7 +1,6 @@
 pub mod parser {
     extern crate clap;
-    use crate::defines::defines::{ServerInfo, ClientInfo, FTPModes};
-    use crate::db::*;
+    use crate::defines::defines::*;
 
     pub fn parse_server_info(_args: &clap::ArgMatches) -> ServerInfo {
         let mut result = ServerInfo {
@@ -68,11 +67,11 @@ pub mod parser {
         return result;
     }
 
-    pub fn parse_dbcmd_info(_args: &clap::ArgMatches) -> db::DBCmd {
-        let mut result: db::DBCmd = db::DBCmd::default();
+    pub fn parse_dbcmd_info(_args: &clap::ArgMatches) -> DBCmd {
+        let mut result: DBCmd = DBCmd::default();
         
         if _args.is_present("add") {
-            result.job = db::CmdJob::Add;
+            result.job = CmdJob::Add;
             result.user = _args.subcommand_matches("add").unwrap()
                 .value_of("name").unwrap().to_string();
             result.pass = _args.subcommand_matches("add").unwrap()
@@ -81,31 +80,31 @@ pub mod parser {
                 .value_of("access-rights").unwrap().to_string();
             if _in_rights == String::from("list") || 
                 _in_rights == String::from("0"){
-                result.rights = db::Rights::List;
+                result.rights = Rights::List;
             }
             if _in_rights == String::from("read") || 
                 _in_rights == String::from("1"){
-                result.rights = db::Rights::Read;
+                result.rights = Rights::Read;
             }
             if _in_rights == String::from("all") || 
                 _in_rights == String::from("2"){
-                result.rights = db::Rights::All;
+                result.rights = Rights::All;
             }
             if _in_rights == String::from("none") || 
                 _in_rights == String::from("3"){
-                result.rights = db::Rights::Nothing;
+                result.rights = Rights::Nothing;
             }
             return result;
         } else if _args.is_present("rm") {
-            result.job = db::CmdJob::Remove;
-            result.user = _args.subcommand_matches("add")
+            result.job = CmdJob::Remove;
+            result.user = _args.subcommand_matches("rm")
                 .unwrap().value_of("name").unwrap().to_string();
             return result;
         } else if _args.is_present("list") {
-            result.job = db::CmdJob::List;
+            result.job = CmdJob::List;
             return result;
         } else if _args.is_present("clean") {
-            result.job = db::CmdJob::Clean;
+            result.job = CmdJob::Clean;
             return result;
         }
         return result;

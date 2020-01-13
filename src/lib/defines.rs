@@ -1,5 +1,5 @@
 pub mod defines {
-    use crate::db::*;
+    use serde::{Deserialize, Serialize};
     use std::net::{TcpStream};
     use net2::TcpBuilder;
 
@@ -8,6 +8,7 @@ pub mod defines {
     impl Default for FTPModes {
         fn default() -> Self { FTPModes::Both }
     }
+
     #[derive(PartialEq, Debug)]
     pub enum FTPTypes { ASCII, BINARY }
     impl Default for FTPTypes {
@@ -31,7 +32,7 @@ pub mod defines {
 
    #[derive(Debug)]
     pub struct ClientConnection {
-        pub user: db::User,
+        pub user: User,
         pub cwd: String,
         pub connect_mode: FTPModes,
         pub data_type: FTPTypes,
@@ -50,7 +51,7 @@ pub mod defines {
             ClientConnection {
                 data_conc: TcpBuilder::new_v4().unwrap()
                     .to_tcp_stream().unwrap(),
-                user: db::User::default(),
+                user: User::default(),
                 cwd: String::default(),
                 connect_mode: FTPModes::default(),
                 data_type: FTPTypes::default(),
@@ -65,14 +66,51 @@ pub mod defines {
             }
         } 
     }
+
     #[derive(Default, Debug)]
     pub struct ServerStatus {
         pub is_command_port_open: bool,
         pub active_connections: i32
     }
+
     #[derive(Debug, Default)]
     pub struct FtpCmd {
         pub _cmd: String,
         pub _args: String,
+    }
+
+    #[derive(PartialEq, Debug, Serialize, Deserialize, Copy, Clone)]
+    pub enum Rights {
+        List, Read, All,
+        Nothing
+    }
+    impl Default for Rights {
+        fn default() -> Self { Rights::List }
+    }
+
+    #[derive(Default, Debug, Serialize, Deserialize)]
+    pub struct User {
+        pub username: String,
+        pub password: String,
+        pub rights: Rights,
+    }
+
+    #[derive(Default, Debug, Serialize, Deserialize)]
+    pub struct DB {
+        pub user: Vec<User>,
+    }
+
+    #[derive(Debug)]
+    pub enum CmdJob {Add, Remove, List, Clean}
+    impl Default for CmdJob {
+        fn default() -> Self { CmdJob::List }
+    }
+
+    #[derive(Default, Debug)]
+    pub struct DBCmd {
+        pub job: CmdJob,
+        pub user: String,
+        pub pass: String,
+        pub rights: Rights
     }
 }

@@ -66,7 +66,7 @@ pub mod ftp_server {
     }
  
     fn handle_client(mut _stream: &mut TcpStream, 
-        _db: std::sync::Arc<Mutex<db::DB>>, anon: bool) ->
+        _db: std::sync::Arc<Mutex<DB>>, anon: bool) ->
         Result<(), Box<dyn std::error::Error>> {
         // Chroot into fake jail.
         std::env::set_current_dir("/var/rftp/")?;
@@ -129,7 +129,7 @@ pub mod ftp_server {
 
     pub fn loggin_user(mut _stream: &mut TcpStream, 
         mut client: &mut ClientConnection, 
-        _db: &db::DB, anon: bool) -> 
+        _db: &DB, anon: bool) -> 
         Result<(), Box<dyn std::error::Error>> {
         // Pre-checks.
 

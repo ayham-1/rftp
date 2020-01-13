@@ -1,5 +1,4 @@
 pub mod db {
-    use serde::{Deserialize, Serialize};
     use std::fs::OpenOptions;
     use std::io::Write;
     use std::io::Read;
@@ -7,50 +6,7 @@ pub mod db {
     use std::thread;
     use std::error::Error;
     use log::{info, warn, trace};
-
-    #[derive(PartialEq, Debug, Serialize, Deserialize, Copy, Clone)]
-    pub enum Rights {
-        List, Read, All,
-        Nothing
-    }
-
-    impl Default for Rights {
-        fn default() -> Self { Rights::List }
-    }
-
-    #[derive(Default, Debug, Serialize, Deserialize)]
-    pub struct User {
-        pub username: String,
-        pub password: String,
-        pub rights: Rights,
-    }
-
-    #[derive(Default, Debug, Serialize, Deserialize)]
-    pub struct DB {
-        pub user: Vec<User>,
-    }
-
-    pub fn add_user(_db: &mut DB, _username: String, _password: String,
-        _rights: Rights) {
-        let mut user: User = User::default();
-        user.username = _username;
-        user.password = _password;
-        user.rights = _rights;
-
-        _db.user.push(user);
-    }
-
-    pub fn rm_user(_db: &mut DB, _username: String) {
-        _db.user.retain(|user| {
-            let delete = {
-                if user.username == _username {
-                    false
-                }
-                else { true }
-            };
-            !delete
-        });
-    }
+    use crate::defines::defines::*;
 
     pub fn save_db(_db: &DB) -> Result<(), std::io::Error> {
         trace!("Saving DB...");
@@ -88,21 +44,6 @@ pub mod db {
         Ok(())
     }
 
-    #[derive(Debug)]
-    pub enum CmdJob {
-        Add, Remove, List, Clean
-    }
-    impl Default for CmdJob {
-        fn default() -> Self { CmdJob::List }
-    }
-
-    #[derive(Default, Debug)]
-    pub struct DBCmd {
-        pub job: CmdJob,
-        pub user: String,
-        pub pass: String,
-        pub rights: Rights
-    }
     
     pub fn apply_dbcmd(_cmd: &DBCmd) -> Result<(), Box<dyn Error>> {
         let mut _db: DB = DB::default();
@@ -114,7 +55,7 @@ pub mod db {
             CmdJob::Remove => db_rm(&mut _db, _cmd),
             CmdJob::List => { db_list(&_db, _cmd); return Ok(()) },
             CmdJob::Clean => { clean_db()?; return Ok(()) },
-        }
+        };
 
         Ok(save_db(&_db)?)
     }
@@ -125,15 +66,27 @@ pub mod db {
         info!("Password: {}", _cmd.pass);
         info!("Rights: {:?}", _cmd.rights);
 
-        add_user(_db, (&_cmd.user).to_string(), 
-            (&_cmd.pass).to_string(), _cmd.rights);
+        let mut user: User = User::default();
+        user.username = _cmd.user.to_owned();
+        user.password = _cmd.pass.to_owned();
+        user.rights = _cmd.rights.to_owned();
+
+        _db.user.push(user);
     }
 
-    pub fn db_rm(_db: &mut DB,_cmd: &DBCmd) {
-        warn!("Removing user to local database.");
+    pub fn db_rm(_db: &mut DB, _cmd: &DBCmd) {
+        warn!("Removing user from local database.");
         warn!("Username: {}", _cmd.user);
 
-        rm_user(_db, (&_cmd.user).to_string());
+        _db.user.retain(|user| {
+            let delete = {
+                if user.username == _cmd.user {
+                    false
+                }
+                else { true }
+            };
+            delete
+        });
     }
 
     pub fn db_list(_db: &DB,_cmd: &DBCmd) {
