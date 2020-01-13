@@ -19,7 +19,7 @@ Result<(), Box<dyn std::error::Error>> {
     let ls = Command::new("ls")
         .env_clear()
         .arg("-l")
-        .arg(&ftp::make_path_jailed(&_cmd._args))
+        .arg(&ftp::make_path_jailed(&(_user.cwd.to_owned() + &_cmd._args)))
         .output().expect("ls command not found.");
     let clrfconv = Command::new("awk")
         .stdin(Stdio::piped())

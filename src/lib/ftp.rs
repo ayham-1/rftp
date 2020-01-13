@@ -2,6 +2,7 @@ pub mod ftp {
     use regex::Regex;
     use std::net::{TcpStream, TcpListener};
     use std::io::{Write};
+    use std::path::Path;
 
     lazy_static! {
         pub static ref REPLY_CODE: Regex = Regex::new(r"\d\d\d\s").unwrap();
@@ -22,6 +23,10 @@ pub mod ftp {
             let mut result = String::new();
             result.push_str("/var/rftp/");
             result.push_str(path);
+            if std::env::current_dir().unwrap().into_os_string().into_string().unwrap().chars().count() < "/var/rftp/".to_string().chars().count() {
+                std::env::set_current_dir(Path::new("/var/rftp")).unwrap();
+                return "/var/rftp/".to_string();
+            }
             return result;
         }
     }

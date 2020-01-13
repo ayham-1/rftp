@@ -32,6 +32,7 @@ pub mod defines {
    #[derive(Debug)]
     pub struct ClientConnection {
         pub user: db::User,
+        pub cwd: String,
         pub connect_mode: FTPModes,
         pub data_type: FTPTypes,
         pub data_ip: String,
@@ -49,6 +50,7 @@ pub mod defines {
             ClientConnection {
                 data_conc: TcpBuilder::new_v4().unwrap().to_tcp_stream().unwrap(),
                 user: db::User::default(),
+                cwd: String::default(),
                 connect_mode: FTPModes::default(),
                 data_type: FTPTypes::default(),
                 data_ip: String::default(),
