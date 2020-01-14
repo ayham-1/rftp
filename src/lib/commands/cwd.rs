@@ -27,7 +27,7 @@ Result<(), Box<dyn std::error::Error>> {
         },
         Err(_v) => {
             ftp::send_reply(&mut _stream, 
-                &ftp::reply::FILE_UNAVAILABLE.to_string(), 
+                &ftp::reply::FILE_UNAVAILABLE.to_string(),
                 "CWD Command Failed.")?;
         }
     }

@@ -1,8 +1,6 @@
 use std::net::TcpStream;
 use crate::ftp::*;
 use crate::defines::defines::*;
-use std::env;
-use std::path::Path;
 
 pub fn cmd(mut _stream: &mut TcpStream, 
     mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
