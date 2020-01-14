@@ -15,8 +15,7 @@ Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
-    let result = env::set_current_dir(Path::new(&
-            &_cmd._args));
+    let result = env::set_current_dir(Path::new(&_cmd._args));
     match result {
         Ok(_v) => {
             if !ftp::check_current_path_jailness() {

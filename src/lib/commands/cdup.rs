@@ -10,17 +10,17 @@ Result<(), Box<dyn std::error::Error>> {
     // Check for permissions.
     if _user.user.rights == Rights::Nothing {
         ftp::send_reply(&mut _stream, 
-            &ftp::reply::NOT_AVAILABLE.to_string(), 
-            "You don't have permissiont to do that.")?;       
+            &ftp::reply::REQUESTED_ACTION_NOT_TAKEN.to_string(), 
+            "You don't have permission to do that.")?;
         return Ok(());
     }
 
-    let result = env::set_current_dir(Path::new(&
-            ftp::make_path_jailed("..")));
+    let result = env::set_current_dir(Path::new(".."));
     match result {
         Ok(_v) => {
-            _user.cwd = env::current_dir()?.into_os_string()
-                .into_string().unwrap();
+            if !ftp::check_current_path_jailness() {
+                env::set_current_dir("/var/rftp/")?;
+            }
             ftp::send_reply(&mut _stream, 
                 &ftp::reply::REQUESTED_FILE_ACTION_OK.to_string(), 
                 "CDUP Command Successful.")?;
