@@ -26,3 +26,6 @@ pub mod syst;
 pub mod r#type;
 pub mod user;
 pub mod cdup;
+pub mod mkd;
+pub mod pwd;
+pub mod rmd;

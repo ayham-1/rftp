@@ -45,6 +45,9 @@ pub mod server_pi {
                 "STAT" => stat::cmd(&mut _stream, &mut _user, &_cmd)?,
                 "SITE" => site::cmd(&mut _stream, &mut _user, &_cmd)?,
                 "CDUP" => cdup::cmd(&mut _stream, &mut _user, &_cmd)?,
+                "MKD" => mkd::cmd(&mut _stream, &mut _user, &_cmd)?,
+                "PWD" => pwd::cmd(&mut _stream, &mut _user, &_cmd)?,
+                "RMD" => rmd::cmd(&mut _stream, &mut _user, &_cmd)?,
                 _ => { 
                     ftp::send_reply(&mut _stream,
                         &ftp::reply::COMMAND_NOT_IMPLEMENTED.to_string(),
