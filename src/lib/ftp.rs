@@ -21,6 +21,13 @@ pub mod ftp {
         pub static ref PORT_OCTI1: Regex = 
             Regex::new(r"(\d+)$").unwrap();
     }
+
+    pub fn strip_jailness(path: &str) -> String {
+        let result = path.replace("/var/rftp", "");
+        if result == "" { return "/".to_string(); }
+        else { return result; }
+    }   
+
     pub fn check_path_jailness(path: &str) -> bool {
         return path.to_string().chars().count() > 
             "/var/rftp".to_string().chars().count();
@@ -142,7 +149,7 @@ pub mod ftp {
         //pub const LOGOUT_ACK: u32                  = 232;
         //pub const AUTH_OK: u32                     = 234;
         pub const REQUESTED_FILE_ACTION_OK: u32    = 250;
-        //pub const PATH_CREATED: u32                = 257;
+        pub const PATH_CREATED: u32                = 257;
 
         // 3xx: Positive intermediate Reply
         pub const NEED_PASSWORD: u32               = 331;
@@ -150,7 +157,7 @@ pub mod ftp {
         pub const REQUEST_FILE_PENDING: u32        = 350;
 
         // 4xx: Transient Negative Completion Reply
-        pub const NOT_AVAILABLE: u32               = 421;
+        //pub const NOT_AVAILABLE: u32               = 421;
         //pub const CANNOT_OPEN_DATA_CONNECTION: u32 = 425;
         //pub const TRANSER_ABORTED: u32             = 426;
         //pub const INVALID_CREDENTIALS: u32         = 430;
