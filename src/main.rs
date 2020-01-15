@@ -18,6 +18,7 @@ use clap::{Arg, App, SubCommand};
 use crate::parser::parser::{parse_server_info, parse_client_info, 
     parse_dbcmd_info};
 use crate::ftp_server::ftp_server::{start_server};
+use crate::ftp_client::ftp_client::{start_client};
 use crate::db::db::apply_dbcmd;
 use log::{trace, error};
 use std::error::Error;
@@ -30,6 +31,7 @@ fn run(_args: clap::ArgMatches) -> Result<(), Box<dyn Error>> {
         },
         ("client", Some(m)) => {
             let _info: ClientInfo = parse_client_info(m); 
+            start_client(_info)?;
         },
         ("db", Some(m)) => {
             let cmd = parse_dbcmd_info(m);

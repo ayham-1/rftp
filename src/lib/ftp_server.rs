@@ -1,14 +1,14 @@
 pub mod ftp_server {
+    use crate::ftp::*;
+    use crate::db::*;
+    use crate::server_pi::*;
     use crate::defines::defines::*;
+
     use std::net::{TcpListener, TcpStream};
     use std::sync::{Arc, Mutex};
     use std::thread;
     use std::io::{BufReader, BufRead};
     use std::error::Error;
-    use crate::ftp::*;
-    use crate::db::*;
-    use crate::server_pi::*;
-
     use log::{info, trace, error};
   
     pub fn start_server(_info: ServerInfo) -> Result<(), 
@@ -75,7 +75,7 @@ pub mod ftp_server {
         client.is_closing = false;
 
         _stream.set_read_timeout(Some(
-                std::time::Duration::new(120, 0)))?;
+                std::time::Duration::new(600, 0)))?;
         ftp::send_reply(_stream, &ftp::reply::READY.to_string(),
                 "rftp")?;
         let mut recieved: String  = "".to_string();

@@ -1,7 +1,10 @@
 pub mod ftp {
     use regex::Regex;
+    use std::process::{Command, Stdio};
     use std::net::{TcpStream, TcpListener};
-    use std::io::{Write};
+    use std::io::{BufReader, BufRead};
+    use std::io::{Write, Read};
+    use std::error::Error;
 
     lazy_static! {
         pub static ref REPLY_CODE: Regex = 
@@ -20,6 +23,26 @@ pub mod ftp {
             Regex::new(r"^(\d+)").unwrap();
         pub static ref PORT_OCTI1: Regex = 
             Regex::new(r"(\d+)$").unwrap();
+    }
+    
+    pub fn print_reply(_stream: &TcpStream) -> Result<(), Box<dyn std::error::Error>> {
+        let mut reader = BufReader::new(_stream);
+        let mut _recieved = "".to_string();
+        reader.read_line(&mut _recieved)?;
+        println!("{}", strip_extra_linefeed(&_recieved));
+        return Ok(());
+    }
+
+    pub fn strip_extra_linefeed(_name: &str) -> String {
+        let conv = Command::new("awk")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .arg(r#"{printf "%s\r", $0}"#)
+            .spawn().expect("awk command not found.");
+        conv.stdin.unwrap().write_all(_name.as_bytes()).unwrap();
+        let mut result = "".to_string();
+        conv.stdout.unwrap().read_to_string(&mut result).unwrap();
+        return result;
     }
 
     pub fn strip_jailness(path: &str) -> String {
@@ -87,13 +110,22 @@ pub mod ftp {
             Err(_) => false,
         }
     }
+    pub fn gen_client_msg(_name: &str, _info: &str) -> String {
+        return String::from(_name.to_string() + " " + _info);
+    }
+
+    pub fn send_client_reply(mut _stream: &mut TcpStream, 
+        _name: &str, _info: &str) -> Result<(), Box<dyn Error>> {
+        _stream.write(gen_client_msg(_name, _info).as_bytes())?;
+        Ok(())
+    }
 
     pub fn gen_reply(_code: &str, _info: &str) -> String {
         return String::from(_code.to_string() + " " + _info + "\r\n");
     }
 
-    pub fn send_reply(_stream: &mut TcpStream, _code: &str,
-        _info: &str) -> Result<(), std::io::Error> {
+    pub fn send_reply(_stream: &mut TcpStream, 
+        _code: &str, _info: &str) -> Result<(), Box<dyn Error>> {
         _stream.write(gen_reply(_code, _info).as_bytes())?; 
         Ok(())
     }
