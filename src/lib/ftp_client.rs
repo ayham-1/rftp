@@ -1,12 +1,13 @@
 pub mod ftp_client {
     use crate::ftp::*;
     use crate::defines::defines::*;
+    use crate::client_pi::*;
 
     use std::error::Error;
-    use std::net::{TcpStream, ToSocketAddrs};
+    use std::net::{TcpStream, ToSocketAddrs, Shutdown};
     use std::io::{self};
     use std::io::prelude::*;
-    use log::{info, error};
+    use log::{info, error, warn};
     use net2::TcpBuilder;
 
     pub fn start_client(_info: ClientInfo) -> Result<(), 
@@ -57,11 +58,20 @@ pub mod ftp_client {
 
         loop {
             let mut received = "".to_string();
-            print!(">");
+            print!("> ");
             io::stdout().flush()?;
             io::stdin().read_line(&mut received)?; 
-            if received == "quit" {break;}
+
+            match client_pi::send_cmd(&mut _stream, &received) {
+                Ok(_v) => {
+                    ftp::print_reply(&_stream)?;
+                },
+                Err(_e) => {
+                    warn!("{}", _e);
+                }
+            }
         };
+        _stream.shutdown(Shutdown::Both)?;        
 
         return Ok(());
     }

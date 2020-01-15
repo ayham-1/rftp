@@ -1,5 +1,6 @@
 pub mod server_pi {
     use std::net::TcpStream;
+    use std::error::Error;
     use crate::ftp::*;
     use crate::defines::defines::*;
     use crate::lib::commands::*;
@@ -15,7 +16,7 @@ pub mod server_pi {
 
     pub fn apply_cmd(mut _stream: &mut TcpStream, 
         mut _user: &mut ClientConnection, _cmd: &FtpCmd) ->
-        Result<(), Box<dyn std::error::Error>> {
+        Result<(), Box<dyn Error>> {
             let cmd = _cmd._cmd.as_str();
             match cmd {
                 "USER" => user::cmd(&mut _stream, &mut _user, &_cmd)?,

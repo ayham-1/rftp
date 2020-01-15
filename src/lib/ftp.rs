@@ -10,7 +10,7 @@ pub mod ftp {
         pub static ref REPLY_CODE: Regex = 
             Regex::new(r"\d\d\d\s").unwrap();
         pub static ref CMD_TYPE: Regex = 
-            Regex::new(r"\w{3,4}\s").unwrap();
+            Regex::new(r"([^\s]+)").unwrap();
         pub static ref CMD_ARGS: Regex = 
             Regex::new(r"\s.+").unwrap();
         pub static ref REMOVE_SPACES: Regex = 
