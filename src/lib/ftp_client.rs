@@ -67,7 +67,14 @@ pub mod ftp_client {
                     ftp::print_reply(&_stream)?;
                 },
                 Err(_e) => {
-                    warn!("{}", _e);
+                    if client_pi::ClientError::Regular(
+                    client_pi::ErrorKind::UnrecognizedCmd) == _e {
+                        warn!("{}", _e);
+                    }
+                    else {
+                        error!("{}", _e);
+                        break;
+                    }
                 }
             }
         };
