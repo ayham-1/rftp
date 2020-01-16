@@ -2,6 +2,8 @@ pub mod defines {
     use serde::{Deserialize, Serialize};
     use std::net::{TcpStream};
     use net2::TcpBuilder;
+    use std::error::Error;
+    use std::fmt;
 
     #[derive(PartialEq, Debug)]
     pub enum FTPModes { Active, Passive, Both }
@@ -30,7 +32,7 @@ pub mod defines {
         pub password: String
     }
 
-   #[derive(Debug)]
+    #[derive(Debug)]
     pub struct ClientConnection {
         pub user: User,
         pub cwd: String,
@@ -51,18 +53,18 @@ pub mod defines {
             ClientConnection {
                 data_conc: TcpBuilder::new_v4().unwrap()
                     .to_tcp_stream().unwrap(),
-                user: User::default(),
-                cwd: String::default(),
-                connect_mode: FTPModes::default(),
-                data_type: FTPTypes::default(),
-                data_ip: String::default(),
-                data_port: i32::default(),
-                is_data_up: bool::default(),
-                is_user_logged: bool::default(),
-                is_closing: bool::default(),
-                is_requesting_login: bool::default(),
-                is_anon: bool::default(),
-                placeholder1: "".to_string(),
+                    user: User::default(),
+                    cwd: String::default(),
+                    connect_mode: FTPModes::default(),
+                    data_type: FTPTypes::default(),
+                    data_ip: String::default(),
+                    data_port: i32::default(),
+                    is_data_up: bool::default(),
+                    is_user_logged: bool::default(),
+                    is_closing: bool::default(),
+                    is_requesting_login: bool::default(),
+                    is_anon: bool::default(),
+                    placeholder1: "".to_string(),
             }
         } 
     }
@@ -112,5 +114,40 @@ pub mod defines {
         pub user: String,
         pub pass: String,
         pub rights: Rights
+    }
+
+#[derive(Debug, PartialEq)]
+    pub enum ClientError {
+        // External libraires errors.
+
+        // client_pi errors.
+        Regular(ErrorKind)
+    }
+    impl Error for ClientError {
+        fn description(&self) -> &str {
+            match *self {
+                ClientError::Regular(ref err) => err.as_str()
+            }
+        }
+    }
+    impl fmt::Display for ClientError {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            match *self {
+                ClientError::Regular(ref err) => 
+                    write!(f, "A client error occured: {:?}", err),
+            }
+        }
+    }
+
+    #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    pub enum ErrorKind {
+        UnrecognizedCmd,
+    }
+    impl ErrorKind {
+        fn as_str(&self) -> &str {
+            match *self {
+                ErrorKind::UnrecognizedCmd => "unrecognized command.",
+            }
+        }
     }
 }
