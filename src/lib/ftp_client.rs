@@ -70,8 +70,10 @@ pub mod ftp_client {
                     if ClientError::Regular(
                         ErrorKind::UnrecognizedCmd) == _e {
                         warn!("{}", _e);
-                    }
-                    else {
+                    } else if ClientError::Regular(
+                        ErrorKind::NoWait) == _e {
+                        continue; 
+                    }  else {
                         error!("{}", _e);
                         break;
                     }

@@ -116,11 +116,8 @@ pub mod defines {
         pub rights: Rights
     }
 
-#[derive(Debug, PartialEq)]
+    #[derive(Debug, PartialEq)]
     pub enum ClientError {
-        // External libraires errors.
-
-        // client_pi errors.
         Regular(ErrorKind)
     }
     impl Error for ClientError {
@@ -142,11 +139,13 @@ pub mod defines {
     #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     pub enum ErrorKind {
         UnrecognizedCmd,
+        NoWait,
     }
     impl ErrorKind {
         fn as_str(&self) -> &str {
             match *self {
                 ErrorKind::UnrecognizedCmd => "unrecognized command.",
+                ErrorKind::NoWait => "no wait.",
             }
         }
     }

@@ -29,3 +29,6 @@ pub mod cdup;
 pub mod mkd;
 pub mod pwd;
 pub mod rmd;
+
+
+pub mod client;

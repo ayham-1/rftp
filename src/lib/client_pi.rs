@@ -1,5 +1,6 @@
 pub mod client_pi {
     use crate::defines::defines::*;
+    use crate::lib::commands::client::*;
     use std::net::TcpStream;
 
     type Result<T> = std::result::Result<T, ClientError>;
@@ -16,14 +17,14 @@ pub mod client_pi {
                 .to_string();
             let cmd = uppercmd.as_str();
 
-            // Despatch commands.
+            // Dispatch commands.
             match cmd {
-                "QUIT" => println!("Hello"),
+                "?" => help::cmd()?,
                 _ => {
                     return Err(ClientError::Regular(
                             ErrorKind::UnrecognizedCmd));
                 }
-            }
+            };
             return Ok(());
     }
 }
