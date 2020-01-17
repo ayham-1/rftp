@@ -26,6 +26,7 @@ pub mod client_pi {
                 "BYE" => quit::cmd(&mut _server_info)?,
                 "QUIT" => quit::cmd(&mut _server_info)?,
                 "CD" => cd::cmd(&mut _stream, _cmd)?,
+                "CDUP" => cdup::cmd(&mut _stream, _cmd)?,
                 _ => {
                     return Err(ClientError::Regular(
                             ErrorKind::UnrecognizedCmd));

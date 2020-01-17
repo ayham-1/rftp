@@ -139,6 +139,7 @@ pub mod defines {
     #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     pub enum ErrorKind {
         UnrecognizedCmd,
+        UnsufficientArgs,
         ProcessCmd,
         NoWait,
     }
@@ -146,6 +147,8 @@ pub mod defines {
         fn as_str(&self) -> &str {
             match *self {
                 ErrorKind::UnrecognizedCmd => "unrecognized command.",
+                ErrorKind::UnsufficientArgs => 
+                    "unsufficient arguments.",
                 ErrorKind::ProcessCmd => "process cmd.",
                 ErrorKind::NoWait => "no wait.",
             }

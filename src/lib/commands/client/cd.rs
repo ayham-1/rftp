@@ -5,7 +5,7 @@ use crate::ftp::*;
 pub fn cmd(mut _stream: &mut TcpStream, _cmd: &str) ->
 Result<(), ClientError> {
     if _cmd == "CD" {
-        return Err(ClientError::Regular(ErrorKind::UnrecognizedCmd));  // TODO
+        return Err(ClientError::Regular(ErrorKind::UnsufficientArgs));
     }
     let args = ftp::get_args(&_cmd.to_owned().to_string());
     match ftp::send_client_reply(&mut _stream, "CWD", &(args + "\n")) {
