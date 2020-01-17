@@ -139,12 +139,14 @@ pub mod defines {
     #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     pub enum ErrorKind {
         UnrecognizedCmd,
+        ProcessCmd,
         NoWait,
     }
     impl ErrorKind {
         fn as_str(&self) -> &str {
             match *self {
                 ErrorKind::UnrecognizedCmd => "unrecognized command.",
+                ErrorKind::ProcessCmd => "process cmd.",
                 ErrorKind::NoWait => "no wait.",
             }
         }

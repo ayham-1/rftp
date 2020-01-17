@@ -130,27 +130,15 @@ pub mod ftp {
         Ok(())
     }
 
-    pub fn remove_whitespace(s: &mut String) {
-        s.retain(|c| !c.is_whitespace());
-    }
-
     pub fn get_command(_recieved: &String) -> String {
-        let cmd = CMD_TYPE.captures(&_recieved).unwrap();
-        let mut cmdstr = cmd.get(0).map_or("".to_string(),
-        |m| m.as_str().to_string());
-        remove_whitespace(&mut cmdstr);
-        return cmdstr;
+        return _recieved.as_str().split_whitespace().next().unwrap().
+            to_owned().to_string();
     }
     
     pub fn get_args(_recieved: &String) -> String {
-        let args = CMD_ARGS.captures(&_recieved);
-        if args.is_none() == true {
-            return "".to_string();
-        }
-        let mut argsstr = args.unwrap().get(0).map_or("".to_string(),
-        |m| m.as_str().to_string());
-        remove_whitespace(&mut argsstr);
-        return argsstr;
+        let mut temp = _recieved.as_str().split_whitespace();
+        temp.next();
+        return temp.next().unwrap().to_owned().to_string();
     }
 
     pub mod reply {

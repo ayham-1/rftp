@@ -1,4 +1,5 @@
 pub mod client_pi {
+    use crate::ftp::*;
     use crate::defines::defines::*;
     use crate::lib::commands::client::*;
     use std::net::TcpStream;
@@ -16,13 +17,15 @@ pub mod client_pi {
             // uppercase all.
             let uppercmd = _stripped.to_uppercase().to_owned()
                 .to_string();
+
             let cmd = uppercmd.as_str();
 
             // Dispatch commands.
-            match cmd {
+            match ftp::get_command(&cmd.to_string()).as_str() {
                 "?" => help::cmd()?,
                 "BYE" => quit::cmd(&mut _server_info)?,
                 "QUIT" => quit::cmd(&mut _server_info)?,
+                "CD" => cd::cmd(&mut _stream, _cmd)?,
                 _ => {
                     return Err(ClientError::Regular(
                             ErrorKind::UnrecognizedCmd));
