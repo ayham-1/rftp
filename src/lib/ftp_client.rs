@@ -12,6 +12,9 @@ pub mod ftp_client {
 
     pub fn start_client(_info: ClientInfo) -> Result<(), 
     Box<dyn Error>> { 
+        let mut server_info: ServerConnection = 
+            ServerConnection::default();
+
         // Figure out the IP.
         let mut _address_iter = _info.server_name.as_str()
             .to_socket_addrs()?;
@@ -35,6 +38,9 @@ pub mod ftp_client {
             _stream = _stream_iter.unwrap();
             info!("Connected to {}", _address);
         }
+
+        server_info.is_connected = true;
+        server_info.is_closing = false;
         
         // Start recieving.
         ftp::print_reply(&_stream)?;
@@ -57,12 +63,15 @@ pub mod ftp_client {
         ftp::print_reply(&_stream)?;
 
         loop {
+            if server_info.is_closing { break; }
+
             let mut received = "".to_string();
             print!("> ");
             io::stdout().flush()?;
             io::stdin().read_line(&mut received)?; 
 
-            match client_pi::send_cmd(&mut _stream, &received) {
+            match client_pi::send_cmd(&mut _stream, &received,
+                &mut server_info) {
                 Ok(_v) => {
                     ftp::print_reply(&_stream)?;
                 },

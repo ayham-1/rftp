@@ -10,6 +10,3 @@ Result<(), Box<dyn std::error::Error>> {
         "One off the racks.")?;
     return Ok(());
 }
-
-
-

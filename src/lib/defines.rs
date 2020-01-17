@@ -149,4 +149,10 @@ pub mod defines {
             }
         }
     }
+
+    #[derive(Debug, Default)]
+    pub struct ServerConnection {
+        pub is_connected: bool,
+        pub is_closing: bool,
+    }
 }

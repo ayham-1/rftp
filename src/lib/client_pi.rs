@@ -5,7 +5,8 @@ pub mod client_pi {
 
     type Result<T> = std::result::Result<T, ClientError>;
 
-    pub fn send_cmd(mut _stream: &mut TcpStream, mut _cmd: &str) -> 
+    pub fn send_cmd(mut _stream: &mut TcpStream, mut _cmd: &str,
+        mut _server_info: &mut ServerConnection) -> 
         Result<()> {
             // Pre-checks.
 
@@ -20,6 +21,8 @@ pub mod client_pi {
             // Dispatch commands.
             match cmd {
                 "?" => help::cmd()?,
+                "BYE" => quit::cmd(&mut _server_info)?,
+                "QUIT" => quit::cmd(&mut _server_info)?,
                 _ => {
                     return Err(ClientError::Regular(
                             ErrorKind::UnrecognizedCmd));
