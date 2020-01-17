@@ -8,7 +8,7 @@ Result<(), ClientError> {
         return Err(ClientError::Regular(ErrorKind::UnsufficientArgs));
     }
     let args = ftp::get_args(&_cmd.to_owned().to_string());
-    match ftp::send_client_reply(&mut _stream, "CWD", &(args + "\n")) {
+    match ftp::send_client_reply(&mut _stream, "CWD", &args) {
         Ok(_v) => {},
         Err(_e) => {
             return Err(ClientError::Regular(

@@ -52,13 +52,15 @@ pub mod ftp_client {
         print!("Name: ");
         io::stdout().flush()?;
         io::stdin().read_line(&mut name)?;
-        ftp::send_client_reply(&mut _stream, "USER", &name)?;
+        ftp::send_client_reply(&mut _stream, "USER", 
+            &(name.replace("\n", "")))?;
         ftp::print_reply(&_stream)?;
 
         print!("Password: ");
         io::stdout().flush()?;
         io::stdin().read_line(&mut pass)?;
-        ftp::send_client_reply(&mut _stream, "PASS", &pass)?;
+        ftp::send_client_reply(&mut _stream, "PASS", 
+            &(pass.replace("\n", "")))?;
         pass.clear(); // Somewhat prevent memory attacks.
         ftp::print_reply(&_stream)?;
 
@@ -69,6 +71,7 @@ pub mod ftp_client {
             print!("> ");
             io::stdout().flush()?;
             io::stdin().read_line(&mut received)?; 
+            received = received.replace("\n", "");
 
             match client_pi::send_cmd(&mut _stream, &received,
                 &mut server_info) {

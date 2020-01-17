@@ -111,7 +111,7 @@ pub mod ftp {
         }
     }
     pub fn gen_client_msg(_name: &str, _info: &str) -> String {
-        return String::from(_name.to_string() + " " + _info);
+        return String::from(_name.to_string() + " " + _info + "\r\n");
     }
 
     pub fn send_client_reply(mut _stream: &mut TcpStream, 
@@ -136,9 +136,13 @@ pub mod ftp {
     }
     
     pub fn get_args(_recieved: &String) -> String {
-        let mut temp = _recieved.as_str().split_whitespace();
-        temp.next();
-        return temp.next().unwrap().to_owned().to_string();
+        let split = _recieved.as_str().split(" ");
+        let vec = split.collect::<Vec<&str>>();
+        if vec.len() == 2 {
+            let arg = vec[1].to_owned().to_string();
+            return arg.replace("\r\n", "");
+        }
+        return "".to_string();
     }
 
     pub mod reply {
