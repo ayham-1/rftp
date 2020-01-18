@@ -38,6 +38,10 @@ pub mod client_pi {
                 "GET" => get::cmd(&mut _stream, _cmd, 
                     &mut _server_info)?,
                 "SYSTEM" => system::cmd(&mut _stream)?,
+                "PASSIVE" => passive::cmd(&mut _server_info)?,
+                "ACTIVE" => active::cmd(&mut _server_info)?,
+                "ASCII" => ascii::cmd(&mut _server_info)?,
+                "BINARY" => binary::cmd(&mut _server_info)?,
                 _ => {
                     return Err(ClientError::Regular(
                             ErrorKind::UnrecognizedCmd));
