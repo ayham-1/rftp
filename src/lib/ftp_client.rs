@@ -83,6 +83,10 @@ pub mod ftp_client {
                         ErrorKind::UnrecognizedCmd) == _e {
                         warn!("{}", _e);
                     } else if ClientError::Regular(
+                        ErrorKind::UnsufficientArgs) == _e {
+                        warn!("{}", _e);
+                        continue; 
+                    } else if ClientError::Regular(
                         ErrorKind::NoWait) == _e {
                         continue; 
                     }  else {

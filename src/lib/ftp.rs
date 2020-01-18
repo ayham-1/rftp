@@ -24,6 +24,13 @@ pub mod ftp {
         pub static ref PORT_OCTI1: Regex = 
             Regex::new(r"(\d+)$").unwrap();
     }
+    pub fn get_reply(_stream: &TcpStream) -> String {
+        let mut reader = BufReader::new(_stream);
+        let mut _recieved = "".to_string();
+        reader.read_line(&mut _recieved).unwrap();
+        println!("{}", strip_extra_linefeed(&_recieved));
+        return _recieved;
+    }
     
     pub fn print_reply(_stream: &TcpStream) -> Result<(), Box<dyn std::error::Error>> {
         let mut reader = BufReader::new(_stream);
@@ -88,7 +95,7 @@ pub mod ftp {
                 }
         let _ip = str::replace(_address.as_str(), ".", ",");
         let mut result = String::new();
-        // rmeove extra numbers from address.
+        // remove extra numbers from address.
         for c in _ip.chars() {
             if c != ':' {
                 result.push_str(&c.to_string());
@@ -100,7 +107,7 @@ pub mod ftp {
     }
 
     pub fn get_available_port() -> Option<u16> {
-        (8000..9000)
+        (2048..9000)
             .find(|port| port_is_available(*port))
     }
 

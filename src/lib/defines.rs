@@ -155,9 +155,26 @@ pub mod defines {
         }
     }
 
-    #[derive(Debug, Default)]
+    #[derive(Debug)]
     pub struct ServerConnection {
+        pub connect_mode: FTPModes,
+        pub data_conc: TcpStream,
+        pub data_type: FTPTypes,
         pub is_connected: bool,
+        pub is_data_up: bool,
         pub is_closing: bool,
+    }
+    impl Default for ServerConnection {
+        fn default() -> Self {
+            ServerConnection {
+                data_conc: TcpBuilder::new_v4().unwrap()
+                    .to_tcp_stream().unwrap(),
+                    connect_mode: FTPModes::Passive,
+                    data_type: FTPTypes::ASCII,
+                    is_data_up: bool::default(),
+                    is_closing: bool::default(),
+                    is_connected: bool::default(),
+            }
+        }
     }
 }

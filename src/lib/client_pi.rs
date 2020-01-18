@@ -31,6 +31,8 @@ pub mod client_pi {
                 "RENAME" => rename::cmd(&mut _stream, _cmd)?,
                 "MKD" => mkd::cmd(&mut _stream, _cmd)?,
                 "RMD" => rmd::cmd(&mut _stream, _cmd)?,
+                "APPEND" => append::cmd(&mut _stream, _cmd, 
+                    &mut _server_info)?,
                 _ => {
                     return Err(ClientError::Regular(
                             ErrorKind::UnrecognizedCmd));
