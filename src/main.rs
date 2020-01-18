@@ -9,6 +9,7 @@ extern crate log;
 extern crate simple_logger;
 extern crate ifaces;
 extern crate dirs;
+extern crate whoami;
 
 mod lib;
 use crate::lib::*;

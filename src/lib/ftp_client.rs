@@ -45,12 +45,16 @@ pub mod ftp_client {
         // Start recieving.
         ftp::print_reply(&_stream)?;
 
+        // Get username for authentication name suggestion.
+        let username = whoami::username();
+
         let mut name: String = "".to_string();
         let mut pass: String = "".to_string();
-       
-        print!("Name: ");
+
+        print!("Name ({}): ", username);
         io::stdout().flush()?;
         io::stdin().read_line(&mut name)?;
+        if name == "" {name = username;}
         ftp::send_client_reply(&mut _stream, "USER", 
             &(name.replace("\n", "")))?;
         ftp::print_reply(&_stream)?;
@@ -67,7 +71,7 @@ pub mod ftp_client {
             if server_info.is_closing { break; }
 
             let mut received = "".to_string();
-            print!("> ");
+            print!("{} > ", name);
             io::stdout().flush()?;
             io::stdin().read_line(&mut received)?; 
             received = received.replace("\n", "");
