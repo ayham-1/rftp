@@ -28,6 +28,7 @@ pub mod client_pi {
                 "CD" => cd::cmd(&mut _stream, _cmd)?,
                 "CDUP" => cdup::cmd(&mut _stream, _cmd)?,
                 "DELETE" => delete::cmd(&mut _stream, _cmd)?,
+                "RENAME" => rename::cmd(&mut _stream, _cmd)?,
                 _ => {
                     return Err(ClientError::Regular(
                             ErrorKind::UnrecognizedCmd));
