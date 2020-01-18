@@ -21,6 +21,28 @@ pub fn cmd(mut _stream: &mut TcpStream, _cmd: &str,
         return Err(ClientError::Regular(ErrorKind::UnsufficientArgs));
     }
 
+    if _server.data_type == FTPTypes::ASCII {
+        match ftp::send_client_reply(&mut _stream, "TYPE", "A") {
+            Ok(_v) => {
+                ftp::print_reply(&_stream).unwrap();
+            },
+            Err(_e) => {
+                return Err(ClientError::Regular(
+                        ErrorKind::ProcessCmd));
+            }
+        } 
+    } else if _server.data_type == FTPTypes::BINARY {
+        match ftp::send_client_reply(&mut _stream, "TYPE", "I") {
+            Ok(_v) => {
+                ftp::print_reply(&_stream).unwrap();
+            },
+            Err(_e) => {
+                return Err(ClientError::Regular(
+                        ErrorKind::ProcessCmd));
+            }
+        }
+    }
+
     if _server.connect_mode == FTPModes::Active {
         // Start listening for data connection.
         // Get avaiable PORT
@@ -118,27 +140,7 @@ pub fn cmd(mut _stream: &mut TcpStream, _cmd: &str,
         // Connect to server.
         _server.data_conc = TcpStream::connect(&_address).unwrap();
 
-        if _server.data_type == FTPTypes::ASCII {
-            match ftp::send_client_reply(&mut _stream, "TYPE", "A") {
-                Ok(_v) => {
-                    ftp::print_reply(&_stream).unwrap();
-                },
-                Err(_e) => {
-                    return Err(ClientError::Regular(
-                            ErrorKind::ProcessCmd));
-                }
-            } 
-        } else if _server.data_type == FTPTypes::BINARY {
-            match ftp::send_client_reply(&mut _stream, "TYPE", "I") {
-                Ok(_v) => {
-                    ftp::print_reply(&_stream).unwrap();
-                },
-                Err(_e) => {
-                    return Err(ClientError::Regular(
-                            ErrorKind::ProcessCmd));
-                }
-            }
-        }
+
         // Issue append.
         match ftp::send_client_reply(&mut _stream, "STOR", &dest_name) {
             Ok(_v) => {},
