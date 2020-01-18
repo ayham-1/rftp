@@ -30,6 +30,7 @@ pub mod client_pi {
                 "DELETE" => delete::cmd(&mut _stream, _cmd)?,
                 "RENAME" => rename::cmd(&mut _stream, _cmd)?,
                 "MKD" => mkd::cmd(&mut _stream, _cmd)?,
+                "RMD" => rmd::cmd(&mut _stream, _cmd)?,
                 _ => {
                     return Err(ClientError::Regular(
                             ErrorKind::UnrecognizedCmd));
