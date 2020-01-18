@@ -33,6 +33,8 @@ pub mod client_pi {
                 "RMD" => rmd::cmd(&mut _stream, _cmd)?,
                 "APPEND" => append::cmd(&mut _stream, _cmd, 
                     &mut _server_info)?,
+                "PUT" => put::cmd(&mut _stream, _cmd, 
+                    &mut _server_info)?,
                 _ => {
                     return Err(ClientError::Regular(
                             ErrorKind::UnrecognizedCmd));

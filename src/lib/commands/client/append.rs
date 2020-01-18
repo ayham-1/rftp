@@ -147,14 +147,12 @@ pub fn cmd(mut _stream: &mut TcpStream, _cmd: &str,
                     Err(_e) => {
                         return Err(ClientError::Regular(
                                 ErrorKind::ProcessCmd));
-                        return Ok(());
                     }
                 }
             },
             Err(_e) => {
                 return Err(ClientError::Regular(
                         ErrorKind::ProcessCmd));
-                return Ok(());
             }
         }
         // Send all data.
@@ -185,7 +183,6 @@ pub fn cmd(mut _stream: &mut TcpStream, _cmd: &str,
             Err(_e) => {
                 return Err(ClientError::Regular(
                         ErrorKind::ProcessCmd));
-                return Ok(());
             }
         }
         // Send all data.

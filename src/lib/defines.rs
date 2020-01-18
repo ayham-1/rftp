@@ -169,7 +169,7 @@ pub mod defines {
             ServerConnection {
                 data_conc: TcpBuilder::new_v4().unwrap()
                     .to_tcp_stream().unwrap(),
-                    connect_mode: FTPModes::Passive,
+                    connect_mode: FTPModes::Active,
                     data_type: FTPTypes::ASCII,
                     is_data_up: bool::default(),
                     is_closing: bool::default(),

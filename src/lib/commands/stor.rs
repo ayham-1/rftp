@@ -36,6 +36,7 @@ Result<(), Box<dyn std::error::Error>> {
     // Read all data.
     let mut buf = vec![];
     _user.data_conc.read_to_end(&mut buf)?;
+    println!("here");
 
     // Store all data.
     let mut file = OpenOptions::new().create(true).write(true)
