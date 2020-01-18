@@ -42,6 +42,7 @@ pub mod client_pi {
                 "ACTIVE" => active::cmd(&mut _server_info)?,
                 "ASCII" => ascii::cmd(&mut _server_info)?,
                 "BINARY" => binary::cmd(&mut _server_info)?,
+                "LS" => list::cmd(&mut _stream, _cmd, &mut _server_info)?,
                 _ => {
                     return Err(ClientError::Regular(
                             ErrorKind::UnrecognizedCmd));
