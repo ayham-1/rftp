@@ -45,10 +45,9 @@ pub mod ftp_client {
         // Start recieving.
         ftp::print_reply(&_stream)?;
 
-        // Authentication.
         let mut name: String = "".to_string();
         let mut pass: String = "".to_string();
-        
+       
         print!("Name: ");
         io::stdout().flush()?;
         io::stdin().read_line(&mut name)?;

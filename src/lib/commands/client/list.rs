@@ -5,11 +5,11 @@ use std::io::Read;
 
 pub fn cmd(mut _stream: &mut TcpStream, _cmd: &str, 
     mut _server: &mut ServerConnection) -> Result<(), ClientError> {
-    let mut name;
-    if _cmd == "LS" {
-        name = "".to_string();
+    let name;
+    if _cmd != "LS" {
+        name = ftp::get_args(&_cmd.to_owned().to_string());
     }
-    name = ftp::get_args(&_cmd.to_owned().to_string());
+    else {name = "".to_string();}
 
     if _server.data_type == FTPTypes::ASCII {
         match ftp::send_client_reply(&mut _stream, "TYPE", "A") {
