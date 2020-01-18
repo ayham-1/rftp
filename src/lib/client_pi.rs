@@ -35,6 +35,8 @@ pub mod client_pi {
                     &mut _server_info)?,
                 "PUT" => put::cmd(&mut _stream, _cmd, 
                     &mut _server_info)?,
+                "GET" => get::cmd(&mut _stream, _cmd, 
+                    &mut _server_info)?,
                 _ => {
                     return Err(ClientError::Regular(
                             ErrorKind::UnrecognizedCmd));
