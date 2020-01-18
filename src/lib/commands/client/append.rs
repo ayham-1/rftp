@@ -129,24 +129,67 @@ pub fn cmd(mut _stream: &mut TcpStream, _cmd: &str,
     ftp::print_reply(&_stream).unwrap();
     // Read all data.
     if _server.data_type == FTPTypes::ASCII {
+        match ftp::send_client_reply(&mut _stream, "TYPE", "A") {
+            Ok(_v) => {
+                ftp::print_reply(&_stream).unwrap();
+            },
+            Err(_e) => {
+                return Err(ClientError::Regular(
+                        ErrorKind::ProcessCmd));
+            }
+        }       
+
         let mut buf = String::new();
         match std::fs::File::open(local_name) {
             Ok(mut _v) => {
                 match _v.read_to_string(&mut buf) {
                     Ok(_v) => {},
                     Err(_e) => {
-                        // TODO: Error here 
+                        return Err(ClientError::Regular(
+                                ErrorKind::ProcessCmd));
                         return Ok(());
                     }
                 }
             },
             Err(_e) => {
-                // TODO: Error here
+                return Err(ClientError::Regular(
+                        ErrorKind::ProcessCmd));
                 return Ok(());
             }
         }
         // Send all data.
         _server.data_conc.write(buf.as_bytes()).unwrap();
+        _server.data_conc.shutdown(Shutdown::Both).unwrap();
+    } else if _server.data_type == FTPTypes::BINARY {
+        match ftp::send_client_reply(&mut _stream, "TYPE", "I") {
+            Ok(_v) => {
+                ftp::print_reply(&_stream).unwrap();
+            },
+            Err(_e) => {
+                return Err(ClientError::Regular(
+                        ErrorKind::ProcessCmd));
+            }
+        }
+
+        let mut buf = vec![];
+        match std::fs::File::open(local_name) {
+            Ok(mut _v) => {
+                match _v.read_to_end(&mut buf) {
+                    Ok(_v) => {},
+                    Err(_e) => {
+                        return Err(ClientError::Regular(
+                                ErrorKind::ProcessCmd));
+                    }
+                }
+            },
+            Err(_e) => {
+                return Err(ClientError::Regular(
+                        ErrorKind::ProcessCmd));
+                return Ok(());
+            }
+        }
+        // Send all data.
+        _server.data_conc.write(&buf).unwrap();
         _server.data_conc.shutdown(Shutdown::Both).unwrap();
     }
     return Ok(());
